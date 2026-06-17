@@ -1,0 +1,55 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# iOS / Xcode
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+Pods/
+.build/
+xcuserdata/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+build/
+
+# Firebase
+GoogleService-Info.plist
+google-services.json
+
+# Android / Gradle
+.gradle/
+local.properties
+*.apk
+*.ap_
+*.aab
+app/build/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.jks
+*.keystore
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Environment / secrets
+.env
+*.env.local
+secrets/
