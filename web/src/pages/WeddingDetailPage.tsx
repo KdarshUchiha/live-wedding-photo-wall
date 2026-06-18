@@ -90,7 +90,7 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
       <div className={styles.pearlsWrap}><PearlString /></div>
 
       {/* Theme decorations */}
-      {theme.decorations.map((d, i) => (
+      {theme.decorations.map((_d, i) => (
         <Sparkle key={i}
           x={['75%','85%','10%','88%','5%','92%'][i] || '50%'}
           y={['8%','18%','25%','55%','65%','78%'][i] || '50%'}

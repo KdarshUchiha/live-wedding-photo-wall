@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { useAlbums } from '../hooks/useAlbums'
-import { usePhotos } from '../hooks/usePhotos'
 import { createAlbum, deleteAlbum, hashPin, verifyPin } from '../services/albumService'
 import { DEFAULT_ALBUMS } from '../config/themes'
 import type { Album, Wedding } from '../types'
@@ -57,10 +56,6 @@ function AlbumCard({
   )
 }
 
-function PhotoCountBadge({ weddingId, albumId }: { weddingId: string; albumId: string }) {
-  const photos = usePhotos(weddingId, albumId)
-  return <>{photos.length}</>
-}
 
 export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
   const albums = useAlbums(wedding.id)
