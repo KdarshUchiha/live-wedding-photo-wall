@@ -4,12 +4,13 @@ service cloud.firestore {
     match /weddings/{weddingId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.createdBy == request.auth.uid;
+      // Only the couple (wedding creator) can delete the entire wedding
       allow delete: if request.auth != null && resource.data.createdBy == request.auth.uid;
 
       match /photos/{photoId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null;
-        // Owner of photo OR couple (wedding creator) can delete
+        // Photo owner OR wedding creator (couple) can delete
         allow delete: if request.auth != null && (
           resource.data.uploaderId == request.auth.uid ||
           get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid
@@ -19,7 +20,7 @@ service cloud.firestore {
       match /videos/{videoId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null;
-        // Owner of video OR couple (wedding creator) can delete
+        // Video owner OR wedding creator (couple) can delete
         allow delete: if request.auth != null && (
           resource.data.uploaderId == request.auth.uid ||
           get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid

@@ -2,12 +2,21 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { useWeddings } from '../hooks/useWeddings'
-import { createWedding } from '../services/weddingService'
+import { createWedding, deleteWedding } from '../services/weddingService'
 import EnvelopeCard from '../components/EnvelopeCard'
 import type { Wedding } from '../types'
 import styles from './HomePage.module.css'
 
 const THEME_COLORS = ['#8B1A1A','#C4A882','#1B3A6B','#7B8C5A','#6B3FA0','#B5534A']
+
+type Tab = 'live' | 'upcoming' | 'archive'
+
+function weddingStatus(w: Wedding): 'live' | 'upcoming' | 'archive' {
+  const today = new Date().toISOString().slice(0, 10)
+  if (w.date === today) return 'live'
+  if (w.date > today) return 'upcoming'
+  return 'archive'
+}
 
 interface Props {
   user: User
@@ -16,18 +25,26 @@ interface Props {
 
 export default function HomePage({ user, onOpen }: Props) {
   const weddings = useWeddings()
-  const [tab, setTab] = useState<'upcoming' | 'archive'>('upcoming')
+  const [tab, setTab] = useState<Tab>('live')
   const [showCreate, setShowCreate] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Wedding | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [form, setForm] = useState({
     bride: '', groom: '', date: '', time: '', venue: '', location: '', themeColor: '#8B1A1A',
   })
   const [saving, setSaving] = useState(false)
 
-  const now = new Date().toISOString().slice(0, 10)
-  const upcoming = weddings.filter((w) => w.date >= now)
-  const archive = weddings.filter((w) => w.date < now)
-  const featured = upcoming[0]
-  const rest = tab === 'upcoming' ? upcoming.slice(1) : archive
+  const live     = weddings.filter((w) => weddingStatus(w) === 'live')
+  const upcoming = weddings.filter((w) => weddingStatus(w) === 'upcoming')
+  const archive  = weddings.filter((w) => weddingStatus(w) === 'archive')
+
+  // Auto-switch to first non-empty tab on load
+  const activeTab = tab
+
+  const listed = activeTab === 'live' ? live : activeTab === 'upcoming' ? upcoming : archive
+
+  // The featured card: live first, else next upcoming
+  const featured = live[0] ?? upcoming[0]
 
   const handleCreate = async () => {
     if (!form.bride || !form.groom || !form.date) return
@@ -36,10 +53,26 @@ export default function HomePage({ user, onOpen }: Props) {
       await createWedding({ ...form, createdBy: user.uid })
       setShowCreate(false)
       setForm({ bride: '', groom: '', date: '', time: '', venue: '', location: '', themeColor: '#8B1A1A' })
+      // Switch to relevant tab after creation
+      const status = weddingStatus({ date: form.date } as Wedding)
+      setTab(status)
     } finally {
       setSaving(false)
     }
   }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    try {
+      await deleteWedding(deleteTarget.id)
+    } finally {
+      setDeleting(false)
+      setDeleteTarget(null)
+    }
+  }
+
+  const tabCounts: Record<Tab, number> = { live: live.length, upcoming: upcoming.length, archive: archive.length }
 
   return (
     <div className={styles.page}>
@@ -50,55 +83,82 @@ export default function HomePage({ user, onOpen }: Props) {
       </header>
 
       <div className={styles.content}>
-        {/* Featured */}
+        {/* Featured card */}
         {featured && (
           <section className={styles.featuredSection}>
-            <span className={styles.nextUpLabel}>✦ Next up</span>
+            <span className={styles.nextUpLabel}>
+              {weddingStatus(featured) === 'live' ? '🔴 Happening now' : '✦ Next up'}
+            </span>
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: 'spring', damping: 15, stiffness: 300 }}
             >
-              <EnvelopeCard wedding={featured} size="large" onClick={() => onOpen(featured)} />
+              <EnvelopeCard
+                wedding={featured}
+                size="large"
+                status={weddingStatus(featured)}
+                canDelete={user.uid === featured.createdBy}
+                onClick={() => onOpen(featured)}
+                onDelete={(e) => { e.stopPropagation(); setDeleteTarget(featured) }}
+              />
             </motion.div>
           </section>
         )}
 
         {/* Tabs */}
         <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${tab === 'upcoming' ? styles.tabActive : ''}`}
-            onClick={() => setTab('upcoming')}
-          >
-            Upcoming
-          </button>
-          <button
-            className={`${styles.tab} ${tab === 'archive' ? styles.tabActive : ''}`}
-            onClick={() => setTab('archive')}
-          >
-            Archive
-          </button>
+          {(['live', 'upcoming', 'archive'] as Tab[]).map((t) => (
+            <button
+              key={t}
+              className={`${styles.tab} ${activeTab === t ? styles.tabActive : ''}`}
+              onClick={() => setTab(t)}
+            >
+              {t === 'live' ? '🔴 Live' : t === 'upcoming' ? 'Upcoming' : 'Archive'}
+              {tabCounts[t] > 0 && (
+                <span className={`${styles.tabCount} ${activeTab === t ? styles.tabCountActive : ''}`}>
+                  {tabCounts[t]}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Grid */}
         <div className={styles.grid}>
-          <AnimatePresence>
-            {rest.map((w, i) => (
+          <AnimatePresence mode="popLayout">
+            {listed.map((w, i) => (
               <motion.div
                 key={w.id}
+                layout
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: i * 0.05, type: 'spring', damping: 18, stiffness: 280 }}
+                transition={{ delay: i * 0.04, type: 'spring', damping: 18, stiffness: 280 }}
               >
-                <EnvelopeCard wedding={w} size="small" onClick={() => onOpen(w)} />
+                <EnvelopeCard
+                  wedding={w}
+                  size="small"
+                  status={weddingStatus(w)}
+                  canDelete={user.uid === w.createdBy}
+                  onClick={() => onOpen(w)}
+                  onDelete={(e) => { e.stopPropagation(); setDeleteTarget(w) }}
+                />
               </motion.div>
             ))}
           </AnimatePresence>
-          {rest.length === 0 && (
-            <p className={styles.emptyMsg}>
-              {tab === 'upcoming' ? 'No more upcoming weddings.' : 'No archived weddings yet.'}
-            </p>
+
+          {listed.length === 0 && (
+            <motion.p
+              className={styles.emptyMsg}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            >
+              {activeTab === 'live'
+                ? 'No weddings happening today.'
+                : activeTab === 'upcoming'
+                ? 'No upcoming weddings. Tap + to add one!'
+                : 'No completed weddings yet.'}
+            </motion.p>
           )}
         </div>
       </div>
@@ -114,14 +174,44 @@ export default function HomePage({ user, onOpen }: Props) {
         +
       </motion.button>
 
+      {/* Delete confirmation dialog */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setDeleteTarget(null)}
+          >
+            <motion.div
+              className={styles.modal}
+              initial={{ y: 40, opacity: 0, scale: 0.96 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 40, opacity: 0 }}
+              transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className={styles.modalTitle}>Delete Wedding?</h2>
+              <p className={styles.deleteWarning}>
+                This will permanently delete <strong>{deleteTarget.bride} &amp; {deleteTarget.groom}</strong>'s
+                wedding and all their photos and videos. This cannot be undone.
+              </p>
+              <div className={styles.modalActions}>
+                <button className={styles.cancelBtn} onClick={() => setDeleteTarget(null)}>Cancel</button>
+                <button className={styles.deleteConfirmBtn} onClick={handleDeleteConfirm} disabled={deleting}>
+                  {deleting ? 'Deleting…' : 'Yes, delete'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Create Wedding Modal */}
       <AnimatePresence>
         {showCreate && (
           <motion.div
             className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setShowCreate(false)}
           >
             <motion.div

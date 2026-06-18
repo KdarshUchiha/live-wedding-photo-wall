@@ -55,7 +55,7 @@
 }
 
 .tab {
-  padding: 10px 20px;
+  padding: 10px 16px;
   font-family: 'Playfair Display', serif;
   font-size: 0.9rem;
   font-weight: 600;
@@ -63,11 +63,33 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
   transition: color 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .tabActive {
   color: #8B1A1A;
   border-bottom-color: #8B1A1A;
+}
+
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #f0ece6;
+  color: #aaa;
+}
+
+.tabCountActive {
+  background: #8B1A1A;
+  color: white;
 }
 
 .grid {
@@ -223,3 +245,24 @@
 
 .createBtn:hover { background: #a82020; }
 .createBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.deleteWarning {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.deleteConfirmBtn {
+  flex: 2;
+  padding: 14px;
+  border-radius: 12px;
+  background: #c0392b;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.deleteConfirmBtn:hover { background: #e74c3c; }
+.deleteConfirmBtn:disabled { opacity: 0.6; cursor: not-allowed; }

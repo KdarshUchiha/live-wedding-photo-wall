@@ -4,7 +4,10 @@ import styles from './EnvelopeCard.module.css'
 interface Props {
   wedding: Wedding
   size: 'large' | 'small'
+  status?: 'live' | 'upcoming' | 'archive'
+  canDelete?: boolean
   onClick: () => void
+  onDelete?: (e: React.MouseEvent) => void
 }
 
 function WaxSeal({ color: _color }: { color: string }) {
@@ -37,40 +40,60 @@ function formatDate(dateStr: string) {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()
 }
 
-export default function EnvelopeCard({ wedding, size, onClick }: Props) {
+export default function EnvelopeCard({ wedding, size, status = 'upcoming', canDelete, onClick, onDelete }: Props) {
   const bg = wedding.themeColor || '#8B1A1A'
   const isLarge = size === 'large'
 
   return (
-    <button
-      className={`${styles.card} ${isLarge ? styles.large : styles.small}`}
-      style={{ '--card-bg': bg, '--card-bg-light': lighten(bg, 0.12) } as React.CSSProperties}
-      onClick={onClick}
-    >
-      {/* Envelope flap */}
-      <div className={styles.flap} />
+    <div className={styles.wrap}>
+      <button
+        className={`${styles.card} ${isLarge ? styles.large : styles.small} ${status === 'archive' ? styles.archived : ''}`}
+        style={{ '--card-bg': bg, '--card-bg-light': lighten(bg, 0.12) } as React.CSSProperties}
+        onClick={onClick}
+      >
+        {/* Status badge */}
+        {status === 'live' && (
+          <div className={styles.liveBadge}>
+            <span className={styles.liveDot} />
+            LIVE NOW
+          </div>
+        )}
+        {status === 'archive' && (
+          <div className={styles.archiveBadge}>COMPLETED</div>
+        )}
 
-      {/* Body */}
-      <div className={styles.body}>
-        <p className={styles.names}>
-          {wedding.bride}<br />
-          <span className={styles.and}>and</span><br />
-          {wedding.groom}
-        </p>
+        {/* Envelope flap */}
+        <div className={styles.flap} />
 
-        <div className={styles.seal}>
-          <WaxSeal color={bg} />
+        {/* Body */}
+        <div className={styles.body}>
+          <p className={styles.names}>
+            {wedding.bride}<br />
+            <span className={styles.and}>and</span><br />
+            {wedding.groom}
+          </p>
+
+          <div className={styles.seal}>
+            <WaxSeal color={bg} />
+          </div>
+
+          <p className={styles.date}>{formatDate(wedding.date)}</p>
+          {wedding.location && (
+            <p className={styles.location}>📍 {wedding.location}</p>
+          )}
         </div>
 
-        <p className={styles.date}>{formatDate(wedding.date)}</p>
-        {wedding.location && (
-          <p className={styles.location}>📍 {wedding.location}</p>
-        )}
-      </div>
+        {/* Envelope bottom fold lines */}
+        <div className={styles.bottomLeft} />
+        <div className={styles.bottomRight} />
+      </button>
 
-      {/* Envelope bottom fold lines */}
-      <div className={styles.bottomLeft} />
-      <div className={styles.bottomRight} />
-    </button>
+      {/* Admin delete button — outside the card button to avoid nested button */}
+      {canDelete && onDelete && (
+        <button className={styles.deleteBtn} onClick={onDelete} aria-label="Delete wedding">
+          🗑
+        </button>
+      )}
+    </div>
   )
 }
