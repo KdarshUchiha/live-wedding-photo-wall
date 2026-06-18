@@ -266,7 +266,7 @@ export default function HomePage({ user, onOpen }: Props) {
                       key={key}
                       className={`${styles.religiousBtn} ${form.religiousTheme === key ? styles.religiousBtnActive : ''}`}
                       style={form.religiousTheme === key ? { borderColor: cfg.primaryColor, background: cfg.primaryColor + '18' } : {}}
-                      onClick={() => setForm({ ...form, religiousTheme: key, themeColor: cfg.primaryColor })}
+                      onClick={() => setForm({ ...form, religiousTheme: key })}
                     >
                       <span>{cfg.emoji}</span>
                       <span className={styles.religiousLabel}>{cfg.label}</span>

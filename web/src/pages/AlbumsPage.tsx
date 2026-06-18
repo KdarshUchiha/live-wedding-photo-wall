@@ -66,6 +66,7 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState(false)
   const [unlocked, setUnlocked] = useState<Set<string>>(new Set())
+  const [error, setError] = useState<string | null>(null)
 
   // Create album form
   const [form, setForm] = useState({ name: '', emoji: '📸', description: '', isPrivate: false, pin: '' })
@@ -74,6 +75,7 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
   const handleCreate = async () => {
     if (!form.name) return
     setSaving(true)
+    setError(null)
     try {
       const pinHash = form.isPrivate && form.pin ? await hashPin(form.pin) : ''
       await createAlbum(wedding.id, {
@@ -86,6 +88,8 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
       })
       setShowCreate(false)
       setForm({ name: '', emoji: '📸', description: '', isPrivate: false, pin: '' })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to create album. Check Firestore rules.')
     } finally {
       setSaving(false)
     }
@@ -228,6 +232,7 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
                   maxLength={8} value={form.pin}
                   onChange={(e) => setForm({ ...form, pin: e.target.value })} />
               )}
+              {error && <p className={styles.errorMsg}>{error}</p>}
               <div className={styles.modalActions}>
                 <button className={styles.cancelBtn} onClick={() => setShowCreate(false)}>Cancel</button>
                 <button className={styles.createBtn} onClick={handleCreate} disabled={saving || !form.name}>

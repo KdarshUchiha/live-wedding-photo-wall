@@ -124,3 +124,13 @@
 .createBtn { flex: 2; padding: 14px; background: #8B1A1A; color: white; border-radius: 12px; font-weight: 600; font-size: 0.9rem; transition: background 0.15s; }
 .createBtn:hover { background: #a82020; }
 .createBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.errorMsg {
+  font-size: 0.8rem;
+  color: #c0392b;
+  background: rgba(192,57,43,0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
