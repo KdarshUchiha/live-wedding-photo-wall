@@ -11,10 +11,11 @@ import styles from './PhotoGalleryPage.module.css'
 interface Props {
   wedding: Wedding
   user: User
+  isAdmin: boolean
   onBack: () => void
 }
 
-export default function PhotoGalleryPage({ wedding, user, onBack }: Props) {
+export default function PhotoGalleryPage({ wedding, user, isAdmin, onBack }: Props) {
   const photos = usePhotos(wedding.id)
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' })
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
@@ -60,6 +61,7 @@ export default function PhotoGalleryPage({ wedding, user, onBack }: Props) {
           <h1 className={styles.title}>Live Photos</h1>
           <p className={styles.subtitle}>{wedding.bride} &amp; {wedding.groom}</p>
         </div>
+        {isAdmin && <span className={styles.adminBadge}>👑 Admin</span>}
       </header>
 
       {/* Progress */}
@@ -123,7 +125,7 @@ export default function PhotoGalleryPage({ wedding, user, onBack }: Props) {
         {selectedIndex !== null && (
           <PhotoDetail
             photos={photos} initialIndex={selectedIndex}
-            canDelete={(p) => user.uid === p.uploaderId}
+            canDelete={(p) => isAdmin || user.uid === p.uploaderId}
             onDelete={handleDelete}
             onClose={() => setSelectedIndex(null)}
             onIndexChange={setSelectedIndex} />

@@ -17,10 +17,12 @@ final class PhotoGalleryViewModel: ObservableObject {
 
     private let service: FirebaseService
     private let weddingId: String
+    private let weddingCreatedBy: String
 
-    init(service: FirebaseService = FirebaseService(), weddingId: String) {
+    init(service: FirebaseService = FirebaseService(), weddingId: String, weddingCreatedBy: String) {
         self.service = service
         self.weddingId = weddingId
+        self.weddingCreatedBy = weddingCreatedBy
         Task { await boot() }
     }
 
@@ -72,8 +74,12 @@ final class PhotoGalleryViewModel: ObservableObject {
         }
     }
 
+    var isAdmin: Bool {
+        service.currentUserId == weddingCreatedBy
+    }
+
     func canDelete(_ photo: Photo) -> Bool {
-        service.currentUserId == photo.uploaderId
+        isAdmin || service.currentUserId == photo.uploaderId
     }
 
     deinit {

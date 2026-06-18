@@ -6,9 +6,9 @@ import { addVideoLink, deleteVideo, getEmbedUrl } from '../services/videoService
 import type { Video, Wedding } from '../types'
 import styles from './VideoGalleryPage.module.css'
 
-interface Props { wedding: Wedding; user: User; onBack: () => void }
+interface Props { wedding: Wedding; user: User; isAdmin: boolean; onBack: () => void }
 
-export default function VideoGalleryPage({ wedding, user, onBack }: Props) {
+export default function VideoGalleryPage({ wedding, user, isAdmin, onBack }: Props) {
   const videos = useVideos(wedding.id)
   const [linkInput, setLinkInput] = useState('')
   const [saving, setSaving] = useState(false)
@@ -102,7 +102,7 @@ export default function VideoGalleryPage({ wedding, user, onBack }: Props) {
                     <a href={video.url} target="_blank" rel="noopener noreferrer" className={styles.videoName}>
                       {video.filename}
                     </a>
-                    {user.uid === video.uploaderId && (
+                    {(isAdmin || user.uid === video.uploaderId) && (
                       <button className={styles.deleteBtn} onClick={() => handleDelete(video)}>🗑</button>
                     )}
                   </div>

@@ -41,6 +41,7 @@ export default function App() {
       <PhotoGalleryPage
         wedding={page.wedding}
         user={user}
+        isAdmin={user.uid === page.wedding.createdBy}
         onBack={() => setPage({ name: 'detail', wedding: page.wedding })}
       />
     )
@@ -50,6 +51,7 @@ export default function App() {
       <VideoGalleryPage
         wedding={page.wedding}
         user={user}
+        isAdmin={user.uid === page.wedding.createdBy}
         onBack={() => setPage({ name: 'detail', wedding: page.wedding })}
       />
     )

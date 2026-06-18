@@ -45,13 +45,14 @@ private val Burgundy = Color(0xFF8B1A1A)
 @Composable
 fun PhotoGalleryScreen(
     weddingId: String,
+    weddingCreatedBy: String,
     brideName: String,
     groomName: String,
     onBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val vm: PhotoGalleryViewModel = viewModel(
-        factory = PhotoGalleryViewModel.Factory(context, weddingId)
+        factory = PhotoGalleryViewModel.Factory(context, weddingId, weddingCreatedBy)
     )
 
     val photos by vm.photos.collectAsStateWithLifecycle()
@@ -133,6 +134,22 @@ fun PhotoGalleryScreen(
             },
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
         )
+
+        if (vm.isAdmin) {
+            Surface(
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, end = 12.dp),
+                shape = CircleShape,
+                color = Burgundy,
+                tonalElevation = 4.dp
+            ) {
+                Text(
+                    text = "👑 Admin",
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
     }
 
     error?.let { msg ->

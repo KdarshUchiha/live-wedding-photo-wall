@@ -24,7 +24,8 @@ sealed class UploadState {
 
 class PhotoGalleryViewModel(
     private val repository: PhotoRepository,
-    private val weddingId: String
+    private val weddingId: String,
+    private val weddingCreatedBy: String
 ) : ViewModel() {
 
     val photos: StateFlow<List<Photo>> = repository.getPhotosFlow(weddingId)
@@ -73,13 +74,19 @@ class PhotoGalleryViewModel(
         }
     }
 
-    fun canDelete(photo: Photo): Boolean = repository.currentUserId == photo.uploaderId
+    val isAdmin: Boolean get() = repository.currentUserId == weddingCreatedBy
+
+    fun canDelete(photo: Photo): Boolean = isAdmin || repository.currentUserId == photo.uploaderId
 
     fun clearError() { _error.value = null }
 
-    class Factory(private val context: Context, private val weddingId: String) : ViewModelProvider.Factory {
+    class Factory(
+        private val context: Context,
+        private val weddingId: String,
+        private val weddingCreatedBy: String
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            PhotoGalleryViewModel(PhotoRepository(context), weddingId) as T
+            PhotoGalleryViewModel(PhotoRepository(context), weddingId, weddingCreatedBy) as T
     }
 }

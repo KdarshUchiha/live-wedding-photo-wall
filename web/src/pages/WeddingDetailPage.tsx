@@ -13,6 +13,7 @@ interface Props {
   onInvite: () => void
 }
 
+
 function Sparkle({ x, y, size = 16, opacity = 0.7 }: { x: string; y: string; size?: number; opacity?: number }) {
   return (
     <span className={styles.sparkle} style={{ left: x, top: y, fontSize: size, opacity }}>✦</span>
@@ -42,13 +43,19 @@ function formatDate(dateStr: string) {
   }
 }
 
-export default function WeddingDetailPage({ wedding, onBack, onPhotos, onVideos, onInvite }: Props) {
+export default function WeddingDetailPage({ wedding, user, onBack, onPhotos, onVideos, onInvite }: Props) {
   const photos = usePhotos(wedding.id)
+  const isAdmin = user.uid === wedding.createdBy
   const { day, month, year } = formatDate(wedding.date)
   const previewPhotos = photos.slice(0, 5)
 
   return (
     <div className={styles.page}>
+      {/* Admin badge */}
+      {isAdmin && (
+        <div className={styles.adminBadge}>👑 Managing</div>
+      )}
+
       {/* Back button */}
       <button className={styles.backBtn} onClick={onBack} aria-label="Go back">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
