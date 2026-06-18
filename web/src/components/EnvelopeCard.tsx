@@ -7,8 +7,7 @@ interface Props {
   onClick: () => void
 }
 
-function WaxSeal({ color }: { color: string }) {
-  const light = lighten(color, 0.3)
+function WaxSeal({ color: _color }: { color: string }) {
   return (
     <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
       <circle cx="26" cy="26" r="24" fill="white" opacity="0.22" />
