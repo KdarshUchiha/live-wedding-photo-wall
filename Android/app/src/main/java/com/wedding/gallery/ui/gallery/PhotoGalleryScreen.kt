@@ -1,5 +1,7 @@
 package com.wedding.gallery.ui.gallery
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,6 +11,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,24 +30,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.wedding.gallery.data.model.Photo
 import com.wedding.gallery.ui.detail.PhotoDetailScreen
 
-private val Burgundy = Color(0xFF300000)
+private val Burgundy = Color(0xFF8B1A1A)
 
 @Composable
 fun PhotoGalleryScreen(
+    weddingId: String,
+    brideName: String,
+    groomName: String,
     onBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val vm: PhotoGalleryViewModel = viewModel(factory = PhotoGalleryViewModel.Factory(context))
+    val vm: PhotoGalleryViewModel = viewModel(
+        factory = PhotoGalleryViewModel.Factory(context, weddingId)
+    )
 
     val photos by vm.photos.collectAsStateWithLifecycle()
     val uploadState by vm.uploadState.collectAsStateWithLifecycle()
@@ -64,9 +72,7 @@ fun PhotoGalleryScreen(
             EmptyGalleryState(
                 modifier = Modifier.fillMaxSize(),
                 onAddPhotos = {
-                    photoPicker.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
             )
         } else {
@@ -98,7 +104,6 @@ fun PhotoGalleryScreen(
             }
         }
 
-        // Upload progress bar
         if (uploadState is UploadState.Uploading) {
             LinearProgressIndicator(
                 progress = { (uploadState as UploadState.Uploading).progress },
@@ -107,7 +112,6 @@ fun PhotoGalleryScreen(
             )
         }
 
-        // Upload done toast
         if (uploadState is UploadState.Done) {
             Surface(
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = 12.dp),
@@ -123,20 +127,14 @@ fun PhotoGalleryScreen(
             }
         }
 
-        // Floating pill button
         AddPhotosButton(
             onClick = {
-                photoPicker.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
+                photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 32.dp)
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
         )
     }
 
-    // Error dialog
     error?.let { msg ->
         AlertDialog(
             onDismissRequest = vm::clearError,
@@ -146,7 +144,6 @@ fun PhotoGalleryScreen(
         )
     }
 
-    // Full-screen detail
     selectedIndex?.let { idx ->
         PhotoDetailScreen(
             photos = photos,
@@ -168,7 +165,7 @@ private fun AddPhotosButton(onClick: () -> Unit, modifier: Modifier = Modifier) 
         modifier = modifier,
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(containerColor = Burgundy),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp, pressedElevation = 4.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
         contentPadding = PaddingValues(horizontal = 28.dp, vertical = 14.dp)
     ) {
         Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White)
@@ -182,6 +179,12 @@ private fun PhotoThumbnailCard(photo: Photo, onClick: () -> Unit) {
     val tilt = remember(photo.id) {
         ((photo.id.hashCode() % 600).toFloat() / 100f) - 3f
     }
+    val bitmap = remember(photo.imageData) {
+        runCatching {
+            val bytes = Base64.decode(photo.imageData, Base64.DEFAULT)
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+        }.getOrNull()
+    }
 
     Column(
         modifier = Modifier
@@ -191,12 +194,21 @@ private fun PhotoThumbnailCard(photo: Photo, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(start = 5.dp, end = 5.dp, top = 5.dp, bottom = 20.dp)
     ) {
-        AsyncImage(
-            model = photo.url,
-            contentDescription = null,
-            modifier = Modifier.aspectRatio(1f),
-            contentScale = ContentScale.Crop
-        )
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap,
+                contentDescription = null,
+                modifier = Modifier.aspectRatio(1f),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Box(
+                modifier = Modifier.aspectRatio(1f).background(Color(0xFFF0EEEB)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Burgundy, modifier = Modifier.size(24.dp))
+            }
+        }
     }
 }
 
@@ -207,22 +219,13 @@ private fun EmptyGalleryState(onAddPhotos: () -> Unit, modifier: Modifier = Modi
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "📸",
-            style = MaterialTheme.typography.displayMedium
-        )
+        Text(text = "📸", style = MaterialTheme.typography.displayMedium)
         Spacer(Modifier.height(16.dp))
         Text(
             text = "Be the first to share your\nmemories from the big day!",
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = "Tap "Add photos" below to begin.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.outline
         )
     }
 }

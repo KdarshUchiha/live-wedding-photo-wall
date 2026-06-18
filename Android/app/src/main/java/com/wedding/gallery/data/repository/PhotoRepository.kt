@@ -2,23 +2,21 @@ package com.wedding.gallery.data.repository
 
 import android.content.Context
 import android.net.Uri
+import android.util.Base64
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.wedding.gallery.data.model.Photo
+import com.wedding.gallery.util.ImageCompressor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.storage.FirebaseStorage
-import com.wedding.gallery.util.ImageCompressor
-import java.util.UUID
 
 class PhotoRepository(private val context: Context) {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
 
     val currentUserId: String? get() = auth.currentUser?.uid
 
@@ -28,8 +26,9 @@ class PhotoRepository(private val context: Context) {
         }
     }
 
-    fun getPhotosFlow(): Flow<List<Photo>> = callbackFlow {
-        val listener = db.collection("photos")
+    fun getPhotosFlow(weddingId: String): Flow<List<Photo>> = callbackFlow {
+        val listener = db.collection("weddings").document(weddingId)
+            .collection("photos")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -37,44 +36,41 @@ class PhotoRepository(private val context: Context) {
                     return@addSnapshotListener
                 }
                 val photos = snapshot?.documents?.mapNotNull { doc ->
-                    val url = doc.getString("url") ?: return@mapNotNull null
+                    val imageData = doc.getString("imageData") ?: return@mapNotNull null
                     val uploaderId = doc.getString("uploaderId") ?: return@mapNotNull null
                     val timestamp = doc.getLong("timestamp") ?: 0L
-                    Photo(id = doc.id, url = url, uploaderId = uploaderId, timestamp = timestamp)
+                    Photo(id = doc.id, imageData = imageData, uploaderId = uploaderId, timestamp = timestamp)
                 } ?: emptyList()
                 trySend(photos)
             }
         awaitClose { listener.remove() }
     }
 
-    suspend fun uploadPhoto(uri: Uri, uploaderId: String): Photo {
+    suspend fun uploadPhoto(uri: Uri, uploaderId: String, weddingId: String): Photo {
         val compressed = ImageCompressor.compress(context, uri)
             ?: throw IllegalStateException("Image compression failed")
 
-        val filename = "${UUID.randomUUID()}.jpg"
-        val ref = storage.reference.child("photos/$filename")
-
-        ref.putBytes(compressed).await()
-        val downloadUrl = ref.downloadUrl.await().toString()
+        val base64 = Base64.encodeToString(compressed, Base64.DEFAULT)
 
         val payload = hashMapOf(
-            "url" to downloadUrl,
+            "imageData" to base64,
             "uploaderId" to uploaderId,
             "timestamp" to System.currentTimeMillis()
         )
 
-        val docRef = db.collection("photos").add(payload).await()
+        val docRef = db.collection("weddings").document(weddingId)
+            .collection("photos").add(payload).await()
 
         return Photo(
             id = docRef.id,
-            url = downloadUrl,
+            imageData = base64,
             uploaderId = uploaderId,
             timestamp = System.currentTimeMillis()
         )
     }
 
-    suspend fun deletePhoto(photo: Photo) {
-        storage.getReferenceFromUrl(photo.url).delete().await()
-        db.collection("photos").document(photo.id).delete().await()
+    suspend fun deletePhoto(photo: Photo, weddingId: String) {
+        db.collection("weddings").document(weddingId)
+            .collection("photos").document(photo.id).delete().await()
     }
 }

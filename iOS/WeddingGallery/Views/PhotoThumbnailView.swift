@@ -9,19 +9,12 @@ struct PhotoThumbnailView: View {
     }
 
     var body: some View {
-        AsyncImage(url: photo.url) { phase in
-            switch phase {
-            case .success(let image):
-                image
+        Group {
+            if let uiImage = photo.uiImage {
+                Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
-            case .failure:
-                Image(systemName: "photo")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemGray6))
-            default:
+            } else {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(.systemGray6))

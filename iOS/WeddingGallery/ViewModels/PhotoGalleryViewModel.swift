@@ -16,9 +16,11 @@ final class PhotoGalleryViewModel: ObservableObject {
     @Published var alertMessage: String?
 
     private let service: FirebaseService
+    private let weddingId: String
 
-    init(service: FirebaseService = FirebaseService()) {
+    init(service: FirebaseService = FirebaseService(), weddingId: String) {
         self.service = service
+        self.weddingId = weddingId
         Task { await boot() }
     }
 
@@ -28,7 +30,7 @@ final class PhotoGalleryViewModel: ObservableObject {
         } catch {
             alertMessage = error.localizedDescription
         }
-        service.startListening { [weak self] photos in
+        service.startListening(weddingId: weddingId) { [weak self] photos in
             withAnimation(.spring(response: 0.45, dampingFraction: 0.68)) {
                 self?.photos = photos
             }
@@ -47,7 +49,7 @@ final class PhotoGalleryViewModel: ObservableObject {
         Task {
             do {
                 for (i, image) in images.enumerated() {
-                    _ = try await service.uploadPhoto(image, uploaderId: userId)
+                    _ = try await service.uploadPhoto(image, uploaderId: userId, weddingId: weddingId)
                     uploadState = .uploading(progress: Double(i + 1) / total)
                 }
                 uploadState = .done
@@ -63,7 +65,7 @@ final class PhotoGalleryViewModel: ObservableObject {
     func deletePhoto(_ photo: Photo) {
         Task {
             do {
-                try await service.deletePhoto(photo)
+                try await service.deletePhoto(photo, weddingId: weddingId)
             } catch {
                 alertMessage = error.localizedDescription
             }

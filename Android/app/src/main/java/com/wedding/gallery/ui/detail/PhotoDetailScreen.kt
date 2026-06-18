@@ -1,5 +1,8 @@
 package com.wedding.gallery.ui.detail
 
+import android.graphics.BitmapFactory
+import android.util.Base64
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -12,11 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import coil.compose.AsyncImage
 import com.wedding.gallery.data.model.Photo
 
 @Composable
@@ -35,38 +38,39 @@ fun PhotoDetailScreen(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                AsyncImage(
-                    model = photos[page].url,
-                    contentDescription = "Photo ${page + 1} of ${photos.size}",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
+                val bitmap = remember(photos[page].imageData) {
+                    runCatching {
+                        val bytes = Base64.decode(photos[page].imageData, Base64.DEFAULT)
+                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                    }.getOrNull()
+                }
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap,
+                        contentDescription = "Photo ${page + 1}",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                }
             }
 
-            // Top bar
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopCenter)
-                    .statusBarsPadding()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter)
+                    .statusBarsPadding().padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                    Icon(Icons.Default.Close, "Close", tint = Color.White)
                 }
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = "${pagerState.currentPage + 1} / ${photos.size}",
+                    "${pagerState.currentPage + 1} / ${photos.size}",
                     color = Color.White.copy(alpha = 0.85f),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -74,23 +78,15 @@ fun PhotoDetailScreen(
                 Spacer(Modifier.size(48.dp))
             }
 
-            // Delete button
             if (currentPhoto != null && canDelete(currentPhoto)) {
-                IconButton(
-                    onClick = { showDeleteConfirm = true },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding()
-                        .padding(bottom = 24.dp)
-                        .background(Color.Black.copy(alpha = 0.5f), shape = MaterialTheme.shapes.small)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                Box(modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 24.dp)) {
+                    TextButton(
+                        onClick = { showDeleteConfirm = true },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
                     ) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                        Icon(Icons.Default.Delete, null)
                         Spacer(Modifier.width(4.dp))
-                        Text("Delete", color = Color.Red, style = MaterialTheme.typography.labelMedium)
+                        Text("Delete photo")
                     }
                 }
             }
@@ -103,12 +99,9 @@ fun PhotoDetailScreen(
             title = { Text("Delete photo?") },
             text = { Text("This will permanently remove the photo for all guests.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteConfirm = false
-                        onDelete(currentPhoto)
-                    }
-                ) { Text("Delete", color = Color.Red) }
+                TextButton(onClick = { showDeleteConfirm = false; onDelete(currentPhoto) }) {
+                    Text("Delete", color = Color.Red)
+                }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }

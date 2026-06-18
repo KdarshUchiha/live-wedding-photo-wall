@@ -17,18 +17,13 @@ struct PhotoDetailView: View {
 
             TabView(selection: $currentIndex) {
                 ForEach(Array(photos.enumerated()), id: \.element.id) { index, photo in
-                    AsyncImage(url: photo.url) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
+                    Group {
+                        if let uiImage = photo.uiImage {
+                            Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        case .failure:
-                            Image(systemName: "photo")
-                                .font(.largeTitle)
-                                .foregroundStyle(.secondary)
-                        default:
+                        } else {
                             ProgressView()
                                 .tint(.white)
                         }
@@ -39,7 +34,6 @@ struct PhotoDetailView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .ignoresSafeArea()
 
-            // Top bar
             VStack {
                 HStack {
                     Button(action: onDismiss) {
@@ -58,17 +52,12 @@ struct PhotoDetailView: View {
                         .padding(.trailing)
                 }
                 .background(
-                    LinearGradient(
-                        colors: [.black.opacity(0.55), .clear],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+                    LinearGradient(colors: [.black.opacity(0.55), .clear], startPoint: .top, endPoint: .bottom)
                 )
                 Spacer()
             }
             .ignoresSafeArea(edges: .top)
 
-            // Bottom delete button
             if canDelete(currentPhoto) {
                 VStack {
                     Spacer()

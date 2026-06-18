@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -21,9 +22,12 @@ sealed class UploadState {
     data class Failed(val message: String) : UploadState()
 }
 
-class PhotoGalleryViewModel(private val repository: PhotoRepository) : ViewModel() {
+class PhotoGalleryViewModel(
+    private val repository: PhotoRepository,
+    private val weddingId: String
+) : ViewModel() {
 
-    val photos: StateFlow<List<Photo>> = repository.getPhotosFlow()
+    val photos: StateFlow<List<Photo>> = repository.getPhotosFlow(weddingId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
@@ -49,7 +53,7 @@ class PhotoGalleryViewModel(private val repository: PhotoRepository) : ViewModel
             _uploadState.value = UploadState.Uploading(0f)
             try {
                 uris.forEachIndexed { i, uri ->
-                    repository.uploadPhoto(uri, userId)
+                    repository.uploadPhoto(uri, userId, weddingId)
                     _uploadState.value = UploadState.Uploading((i + 1) / total)
                 }
                 _uploadState.value = UploadState.Done
@@ -64,7 +68,7 @@ class PhotoGalleryViewModel(private val repository: PhotoRepository) : ViewModel
 
     fun deletePhoto(photo: Photo) {
         viewModelScope.launch {
-            try { repository.deletePhoto(photo) }
+            try { repository.deletePhoto(photo, weddingId) }
             catch (e: Exception) { _error.value = "Delete failed: ${e.message}" }
         }
     }
@@ -73,9 +77,9 @@ class PhotoGalleryViewModel(private val repository: PhotoRepository) : ViewModel
 
     fun clearError() { _error.value = null }
 
-    class Factory(private val context: Context) : ViewModelProvider.Factory {
+    class Factory(private val context: Context, private val weddingId: String) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            PhotoGalleryViewModel(PhotoRepository(context)) as T
+            PhotoGalleryViewModel(PhotoRepository(context), weddingId) as T
     }
 }
