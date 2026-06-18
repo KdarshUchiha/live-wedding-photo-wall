@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { useVideos } from '../hooks/useVideos'
 import { addVideoLink, deleteVideo, getEmbedUrl } from '../services/videoService'
