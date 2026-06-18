@@ -1,11 +1,12 @@
 import { addDoc, collection, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 
-export async function uploadPhoto(file: File, uploaderId: string, weddingId: string): Promise<void> {
+export async function uploadPhoto(file: File, uploaderId: string, weddingId: string, albumId: string): Promise<void> {
   const dataUrl = await compressToDataUrl(file)
   await addDoc(collection(db, 'weddings', weddingId, 'photos'), {
     url: dataUrl,
     uploaderId,
+    albumId,
     timestamp: serverTimestamp(),
   })
 }

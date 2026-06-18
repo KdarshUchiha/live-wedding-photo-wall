@@ -4,10 +4,12 @@ import type { User } from 'firebase/auth'
 import { useWeddings } from '../hooks/useWeddings'
 import { createWedding, deleteWedding } from '../services/weddingService'
 import EnvelopeCard from '../components/EnvelopeCard'
-import type { Wedding } from '../types'
+import { RELIGIOUS_THEMES } from '../config/themes'
+import type { ReligiousTheme, Wedding } from '../types'
 import styles from './HomePage.module.css'
 
 const THEME_COLORS = ['#8B1A1A','#C4A882','#1B3A6B','#7B8C5A','#6B3FA0','#B5534A']
+const RELIGIOUS_OPTIONS = Object.entries(RELIGIOUS_THEMES) as [ReligiousTheme, typeof RELIGIOUS_THEMES[ReligiousTheme]][]
 
 type Tab = 'live' | 'upcoming' | 'archive'
 
@@ -30,7 +32,8 @@ export default function HomePage({ user, onOpen }: Props) {
   const [deleteTarget, setDeleteTarget] = useState<Wedding | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [form, setForm] = useState({
-    bride: '', groom: '', date: '', time: '', venue: '', location: '', themeColor: '#8B1A1A',
+    bride: '', groom: '', date: '', time: '', venue: '', location: '',
+    themeColor: '#8B1A1A', religiousTheme: 'other' as ReligiousTheme, timeline: [],
   })
   const [saving, setSaving] = useState(false)
 
@@ -52,7 +55,7 @@ export default function HomePage({ user, onOpen }: Props) {
     try {
       await createWedding({ ...form, createdBy: user.uid })
       setShowCreate(false)
-      setForm({ bride: '', groom: '', date: '', time: '', venue: '', location: '', themeColor: '#8B1A1A' })
+      setForm({ bride: '', groom: '', date: '', time: '', venue: '', location: '', themeColor: '#8B1A1A', religiousTheme: 'other', timeline: [] })
       // Switch to relevant tab after creation
       const status = weddingStatus({ date: form.date } as Wedding)
       setTab(status)
@@ -251,6 +254,23 @@ export default function HomePage({ user, onOpen }: Props) {
                       style={{ background: c }}
                       onClick={() => setForm({ ...form, themeColor: c })}
                     />
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.colorRow}>
+                <span className={styles.colorLabel}>Religious ceremony</span>
+                <div className={styles.religiousGrid}>
+                  {RELIGIOUS_OPTIONS.map(([key, cfg]) => (
+                    <button
+                      key={key}
+                      className={`${styles.religiousBtn} ${form.religiousTheme === key ? styles.religiousBtnActive : ''}`}
+                      style={form.religiousTheme === key ? { borderColor: cfg.primaryColor, background: cfg.primaryColor + '18' } : {}}
+                      onClick={() => setForm({ ...form, religiousTheme: key, themeColor: cfg.primaryColor })}
+                    >
+                      <span>{cfg.emoji}</span>
+                      <span className={styles.religiousLabel}>{cfg.label}</span>
+                    </button>
                   ))}
                 </div>
               </div>

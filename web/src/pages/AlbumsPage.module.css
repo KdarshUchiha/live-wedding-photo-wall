@@ -1,0 +1,126 @@
+.page { min-height: 100vh; background: #faf8f5; }
+
+.header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 20px 16px 16px; background: white;
+  border-bottom: 1px solid #f0ece6;
+  position: sticky; top: 0; z-index: 30;
+}
+.backBtn {
+  width: 38px; height: 38px; border-radius: 50%; background: #f5f1ec;
+  display: flex; align-items: center; justify-content: center; color: #333; flex-shrink: 0;
+}
+.title { font-family: 'Great Vibes', cursive; font-size: 2rem; color: #8B1A1A; line-height: 1; }
+.subtitle { font-size: 0.78rem; color: #aaa; font-family: 'Playfair Display', serif; font-style: italic; }
+.addBtn {
+  margin-left: auto; padding: 8px 16px; background: #8B1A1A; color: white;
+  border-radius: 100px; font-size: 0.82rem; font-weight: 600; white-space: nowrap;
+  transition: background 0.15s;
+}
+.addBtn:hover { background: #a82020; }
+
+.main { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.card {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  padding: 28px 20px 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+  border: 1.5px solid #f0ece6;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-color: #e0d8d0; }
+
+.privateCard { background: linear-gradient(135deg, #fff8f8 0%, #fdf5f5 100%); border-color: rgba(139,26,26,0.15); }
+
+.cardEmoji { font-size: 2.8rem; margin-bottom: 10px; line-height: 1; }
+.cardName {
+  font-family: 'Playfair Display', serif; font-size: 1rem;
+  font-weight: 600; color: #1a1a1a; margin-bottom: 4px;
+}
+.cardDesc { font-size: 0.78rem; color: #aaa; line-height: 1.5; margin-bottom: 12px; }
+.cardMeta { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.photoCount { font-size: 0.75rem; color: #bbb; }
+.lockBadge {
+  font-size: 0.68rem; font-weight: 600; color: #8B1A1A;
+  background: rgba(139,26,26,0.08); padding: 2px 8px; border-radius: 100px;
+}
+
+.deleteBtn {
+  position: absolute; top: 10px; right: 10px;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #f5f1ec; color: #888; font-size: 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.15s;
+}
+.card:hover .deleteBtn { opacity: 1; }
+
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 16px; }
+.emptyText { font-family: 'Playfair Display', serif; font-style: italic; color: #bbb; font-size: 1rem; }
+.seedBtn {
+  padding: 12px 24px; background: #8B1A1A; color: white;
+  border-radius: 100px; font-weight: 600; font-size: 0.9rem;
+  transition: background 0.15s;
+}
+.seedBtn:hover { background: #a82020; }
+
+/* PIN dialog */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; padding: 16px;
+}
+.dialog {
+  background: white; border-radius: 24px; padding: 36px 28px;
+  max-width: 360px; width: 100%; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.lockIcon { font-size: 2.5rem; margin-bottom: 12px; }
+.dialogTitle { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
+.dialogSub { font-size: 0.85rem; color: #888; margin-bottom: 20px; line-height: 1.5; }
+.pinInput {
+  width: 100%; padding: 14px; text-align: center; font-size: 1.4rem;
+  letter-spacing: 0.3em; border: 1.5px solid #e0d8d0; border-radius: 12px;
+  margin-bottom: 8px; outline: none; transition: border-color 0.15s;
+}
+.pinInput:focus { border-color: #8B1A1A; }
+.pinError { border-color: #c0392b !important; }
+.pinErrorMsg { font-size: 0.8rem; color: #c0392b; margin-bottom: 12px; }
+.dialogActions { display: flex; gap: 10px; margin-top: 16px; }
+.cancelBtn { flex: 1; padding: 12px; border: 1.5px solid #e0d8d0; border-radius: 10px; font-weight: 600; color: #888; font-size: 0.875rem; }
+.unlockBtn { flex: 2; padding: 12px; background: #8B1A1A; color: white; border-radius: 10px; font-weight: 600; font-size: 0.875rem; transition: background 0.15s; }
+.unlockBtn:hover { background: #a82020; }
+
+/* Create album modal */
+.modal {
+  background: white; border-radius: 24px 24px 0 0; padding: 32px 24px 40px;
+  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+}
+@media (min-width: 600px) { .modal { border-radius: 24px; } }
+.modalTitle { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: #8B1A1A; text-align: center; margin-bottom: 20px; }
+.emojiRow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; justify-content: center; }
+.emojiBtn { width: 40px; height: 40px; border-radius: 10px; font-size: 1.25rem; background: #f5f1ec; transition: background 0.15s, transform 0.15s; }
+.emojiBtn:hover { background: #ede5dc; }
+.emojiBtnActive { background: rgba(139,26,26,0.12) !important; outline: 2px solid #8B1A1A; transform: scale(1.15); }
+.input {
+  width: 100%; padding: 12px 14px; border: 1.5px solid #e8e0d8;
+  border-radius: 10px; font-size: 0.9rem; color: #1a1a1a;
+  background: #faf8f5; margin-bottom: 12px; outline: none;
+  transition: border-color 0.15s; font-family: 'Inter', sans-serif;
+}
+.input:focus { border-color: #8B1A1A; }
+.toggle { display: flex; align-items: center; gap: 10px; font-size: 0.875rem; color: #555; margin-bottom: 12px; cursor: pointer; }
+.toggle input { width: 16px; height: 16px; accent-color: #8B1A1A; }
+.modalActions { display: flex; gap: 10px; margin-top: 8px; }
+.createBtn { flex: 2; padding: 14px; background: #8B1A1A; color: white; border-radius: 12px; font-weight: 600; font-size: 0.9rem; transition: background 0.15s; }
+.createBtn:hover { background: #a82020; }
+.createBtn:disabled { opacity: 0.6; cursor: not-allowed; }

@@ -246,6 +246,23 @@
 .createBtn:hover { background: #a82020; }
 .createBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.religiousGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.religiousBtn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px; border-radius: 10px; border: 1.5px solid #e8e0d8;
+  background: #faf8f5; transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  font-size: 1.2rem;
+}
+.religiousBtn:hover { border-color: #ccc; transform: scale(1.05); }
+.religiousBtnActive { transform: scale(1.06); }
+.religiousLabel { font-size: 0.6rem; font-weight: 600; color: #666; letter-spacing: 0.02em; }
+
 .deleteWarning {
   font-size: 0.9rem;
   color: #555;

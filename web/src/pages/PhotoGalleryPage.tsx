@@ -5,18 +5,19 @@ import { usePhotos } from '../hooks/usePhotos'
 import { uploadPhoto, deletePhoto } from '../services/photoService'
 import PhotoThumbnail from '../components/PhotoThumbnail'
 import PhotoDetail from '../components/PhotoDetail'
-import type { Photo, UploadState, Wedding } from '../types'
+import type { Album, Photo, UploadState, Wedding } from '../types'
 import styles from './PhotoGalleryPage.module.css'
 
 interface Props {
   wedding: Wedding
+  album: Album
   user: User
   isAdmin: boolean
   onBack: () => void
 }
 
-export default function PhotoGalleryPage({ wedding, user, isAdmin, onBack }: Props) {
-  const photos = usePhotos(wedding.id)
+export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack }: Props) {
+  const photos = usePhotos(wedding.id, album.id)
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' })
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -28,7 +29,7 @@ export default function PhotoGalleryPage({ wedding, user, isAdmin, onBack }: Pro
     setUploadState({ status: 'uploading', progress: 0 })
     try {
       for (let i = 0; i < arr.length; i++) {
-        await uploadPhoto(arr[i], user.uid, wedding.id)
+        await uploadPhoto(arr[i], user.uid, wedding.id, album.id)
         setUploadState({ status: 'uploading', progress: (i + 1) / arr.length })
       }
       setUploadState({ status: 'done' })
@@ -58,7 +59,7 @@ export default function PhotoGalleryPage({ wedding, user, isAdmin, onBack }: Pro
           </svg>
         </button>
         <div>
-          <h1 className={styles.title}>Live Photos</h1>
+          <h1 className={styles.title}>{album.emoji} {album.name}</h1>
           <p className={styles.subtitle}>{wedding.bride} &amp; {wedding.groom}</p>
         </div>
         {isAdmin && <span className={styles.adminBadge}>👑 Admin</span>}
