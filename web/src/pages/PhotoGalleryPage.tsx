@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack }: Props) {
-  const photos = usePhotos(wedding.id, album.id)
+  const photos = usePhotos(wedding.id, album.id || undefined)
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' })
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)

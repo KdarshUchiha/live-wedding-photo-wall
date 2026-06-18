@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { useAlbums } from '../hooks/useAlbums'
+import { usePhotos } from '../hooks/usePhotos'
 import { createAlbum, deleteAlbum, hashPin, verifyPin } from '../services/albumService'
 import { DEFAULT_ALBUMS } from '../config/themes'
 import type { Album, Wedding } from '../types'
@@ -15,16 +16,19 @@ interface Props {
 }
 
 function AlbumCard({
-  album, isAdmin, totalPhotos,
+  album, weddingId, isAdmin,
   onOpen, onDelete, onUnlock
 }: {
   album: Album
+  weddingId: string
   isAdmin: boolean
-  totalPhotos: number
   onOpen: () => void
   onDelete: () => void
   onUnlock: () => void
 }) {
+  const photos = usePhotos(weddingId, album.id)
+  const count = photos.length
+
   return (
     <motion.div
       className={`${styles.card} ${album.isPrivate ? styles.privateCard : ''}`}
@@ -40,7 +44,7 @@ function AlbumCard({
       <h3 className={styles.cardName}>{album.name}</h3>
       <p className={styles.cardDesc}>{album.description}</p>
       <div className={styles.cardMeta}>
-        <span className={styles.photoCount}>{totalPhotos} photo{totalPhotos !== 1 ? 's' : ''}</span>
+        <span className={styles.photoCount}>{count} photo{count !== 1 ? 's' : ''}</span>
         {album.isPrivate && <span className={styles.lockBadge}>🔒 Private</span>}
       </div>
       {isAdmin && (
@@ -56,6 +60,15 @@ function AlbumCard({
   )
 }
 
+
+function AllPhotosCount({ weddingId }: { weddingId: string }) {
+  const photos = usePhotos(weddingId)
+  return (
+    <div className={styles.cardMeta}>
+      <span className={styles.photoCount}>{photos.length} photo{photos.length !== 1 ? 's' : ''}</span>
+    </div>
+  )
+}
 
 export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
   const albums = useAlbums(wedding.id)
@@ -155,13 +168,28 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
           </div>
         )}
         <div className={styles.grid}>
+          {/* All Photos card — shows everything including orphaned photos */}
+          <motion.div
+            className={styles.card}
+            whileHover={{ y: -4, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={() => onOpen({ id: '', name: 'All Photos', emoji: '📷', description: 'Every photo from this wedding', isPrivate: false, pinHash: '', createdBy: '', createdAt: 0, photoCount: 0 })}
+          >
+            <div className={styles.cardEmoji}>📷</div>
+            <h3 className={styles.cardName}>All Photos</h3>
+            <p className={styles.cardDesc}>Every photo from this wedding</p>
+            <AllPhotosCount weddingId={wedding.id} />
+          </motion.div>
+
           <AnimatePresence>
             {albums.map((album) => (
               <AlbumCard
                 key={album.id}
                 album={album}
+                weddingId={wedding.id}
                 isAdmin={isAdmin}
-                totalPhotos={0}
                 onOpen={() => handleAlbumClick(album)}
                 onDelete={() => deleteAlbum(wedding.id, album.id)}
                 onUnlock={() => { setPinTarget(album); setPinInput(''); setPinError(false) }}
