@@ -2,13 +2,12 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 
-// Replace with your Firebase project config
 const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_PROJECT.firebaseapp.com',
-  projectId: 'YOUR_PROJECT_ID',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId: 'YOUR_APP_ID',
+  apiKey: 'AIzaSyDsLExXN7Wd2zdWa7A32rWTfHz8zQ_IVq0',
+  authDomain: 'wedding-invitation-app-26a72.firebaseapp.com',
+  projectId: 'wedding-invitation-app-26a72',
+  messagingSenderId: '127161126992',
+  appId: '1:127161126992:web:a7b7656933bd8296e98155',
 }
 
 const app = initializeApp(firebaseConfig)
