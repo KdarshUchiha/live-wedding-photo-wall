@@ -1,0 +1,97 @@
+.card {
+  display: block;
+  width: 100%;
+  background: var(--card-bg);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 14px 40px rgba(0,0,0,0.24), 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.large {
+  min-height: 200px;
+  padding: 36px 24px 28px;
+}
+
+.small {
+  min-height: 150px;
+  padding: 24px 20px 20px;
+}
+
+/* Envelope flap — triangle at top */
+.flap {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: color-mix(in srgb, var(--card-bg) 80%, black 20%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  opacity: 0.5;
+}
+
+/* Diagonal fold lines from bottom corners */
+.bottomLeft {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(to top right, color-mix(in srgb, var(--card-bg) 70%, black 30%) 0%, transparent 50%);
+  clip-path: polygon(0 100%, 50% 50%, 0 50%);
+  opacity: 0.3;
+}
+
+.bottomRight {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(to top left, color-mix(in srgb, var(--card-bg) 70%, black 30%) 0%, transparent 50%);
+  clip-path: polygon(100% 100%, 50% 50%, 100% 50%);
+  opacity: 0.3;
+}
+
+.body {
+  position: relative;
+  z-index: 2;
+}
+
+.names {
+  font-family: 'Great Vibes', cursive;
+  color: white;
+  line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+.large .names { font-size: 2.4rem; }
+.small .names { font-size: 1.7rem; }
+
+.and {
+  font-family: 'Great Vibes', cursive;
+  font-size: 0.7em;
+  opacity: 0.85;
+}
+
+.seal {
+  margin: 12px auto;
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+}
+
+.date {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.85);
+  margin-top: 4px;
+}
+
+.location {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+}

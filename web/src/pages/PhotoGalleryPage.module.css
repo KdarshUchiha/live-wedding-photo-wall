@@ -1,0 +1,84 @@
+.page { min-height: 100vh; background: #faf8f5; position: relative; padding-bottom: 100px; }
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 16px 16px;
+  background: white;
+  border-bottom: 1px solid #f0ece6;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.backBtn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: #f5f1ec; display: flex; align-items: center; justify-content: center;
+  color: #333; flex-shrink: 0;
+}
+
+.title { font-family: 'Great Vibes', cursive; font-size: 2rem; color: #8B1A1A; line-height: 1; }
+.subtitle { font-size: 0.78rem; color: #aaa; font-family: 'Playfair Display', serif; font-style: italic; }
+
+.progressBar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: #8B1A1A; z-index: 100; transform-origin: left;
+}
+
+.toast {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  background: white; border: 1px solid #e0e0e0; border-radius: 100px;
+  padding: 10px 20px; font-size: 0.875rem; font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 200; white-space: nowrap;
+}
+
+.main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 0; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 50vh; gap: 12px; text-align: center; color: #bbb;
+}
+.empty span { font-size: 3.5rem; }
+.empty h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #888; }
+.empty p { font-size: 0.9rem; }
+
+.fabWrap {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; justify-content: center; padding-bottom: 32px; pointer-events: none; z-index: 50;
+}
+
+.fab {
+  pointer-events: all;
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 100px;
+  background: rgba(139,26,26,0.9);
+  color: white; font-size: 0.9375rem; font-weight: 600;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px rgba(139,26,26,0.4);
+  transition: transform 0.15s, background 0.15s;
+}
+.fab:hover { transform: translateY(-2px); background: rgba(139,26,26,1); }
+
+.errorOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 500; padding: 16px;
+}
+.errorDialog {
+  background: white; border-radius: 16px; padding: 28px;
+  max-width: 340px; width: 100%;
+}
+.errorDialog h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+.errorDialog p { font-size: 0.875rem; color: #666; margin-bottom: 20px; }
+.errorDialog button {
+  width: 100%; padding: 12px; background: #8B1A1A; color: white;
+  border-radius: 8px; font-weight: 600;
+}

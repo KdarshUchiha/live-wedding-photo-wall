@@ -5,26 +5,22 @@
 }
 
 :root {
-  --burgundy: #300000;
-  --burgundy-light: rgba(48, 0, 0, 0.85);
+  --burgundy: #8B1A1A;
+  --burgundy-dark: #300000;
+  --sage: #7B8C5A;
+  --cream: #FDF8F0;
   font-family: 'Inter', system-ui, sans-serif;
-  color-scheme: light dark;
+}
+
+html, body, #root {
+  min-height: 100%;
 }
 
 body {
-  min-height: 100vh;
   background: #faf8f5;
   color: #1a1a1a;
+  -webkit-font-smoothing: antialiased;
 }
 
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-family: inherit;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-}
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+img { display: block; max-width: 100%; }

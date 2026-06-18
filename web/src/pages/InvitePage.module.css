@@ -1,0 +1,142 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f9f3e8 0%, #f0e8d6 50%, #e8dcc8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+  position: relative;
+}
+
+.backBtn {
+  position: fixed; top: 20px; left: 16px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(139,26,26,0.12);
+  color: #8B1A1A; display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+}
+.backBtn:hover { background: rgba(139,26,26,0.2); }
+
+.card {
+  background: #fffdf7;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
+  border: 1px solid rgba(201,169,110,0.3);
+}
+
+.lace { display: block; width: 100%; }
+
+.inner {
+  padding: 36px 40px 32px;
+  text-align: center;
+}
+
+.together, .requestHonour, .atMarriage {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: #888;
+  line-height: 1.7;
+}
+.together { font-size: 0.9rem; }
+.requestHonour { font-size: 0.85rem; }
+.atMarriage { font-size: 0.875rem; margin-top: 4px; }
+
+.names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  gap: 0;
+}
+
+.name {
+  font-family: 'Great Vibes', cursive;
+  font-size: 3.2rem;
+  color: #8B1A1A;
+  line-height: 1.1;
+}
+
+.ampersand {
+  font-family: 'Great Vibes', cursive;
+  font-size: 2rem;
+  color: #c9a96e;
+  line-height: 1;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c9a96e, transparent);
+}
+.dividerFlower { color: #c9a96e; font-size: 1rem; }
+
+.date {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #444;
+}
+.time {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+.venueLabel {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9a96e;
+  margin-top: 16px;
+}
+.venueName {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 4px;
+}
+.venueLocation {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+.rsvpLabel {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+.rsvpDate {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.rsvpBtn {
+  padding: 14px 44px;
+  background: #8B1A1A;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  border-radius: 2px;
+  box-shadow: 0 4px 16px rgba(139,26,26,0.3);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.rsvpBtn:hover { background: #a82020; box-shadow: 0 6px 20px rgba(139,26,26,0.4); }

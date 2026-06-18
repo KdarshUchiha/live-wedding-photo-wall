@@ -1,0 +1,222 @@
+.page {
+  min-height: 100vh;
+  background: #7B8C5A;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.backBtn {
+  position: fixed;
+  top: 20px;
+  left: 16px;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: background 0.15s;
+}
+
+.backBtn:hover { background: rgba(255,255,255,0.38); }
+
+.pearlsWrap {
+  position: absolute;
+  top: 0; right: 0;
+  width: 220px;
+  pointer-events: none;
+}
+
+.pearls { width: 100%; }
+
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  color: rgba(255,255,255,0.85);
+  font-style: normal;
+  animation: twinkle 2.5s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+@keyframes twinkle {
+  from { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  to { transform: scale(1.3) rotate(20deg); opacity: 1; }
+}
+
+.scrollArea {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 24px 120px;
+  gap: 20px;
+}
+
+/* Polaroid thumbnails */
+.polaroid {
+  position: absolute;
+  width: 90px;
+  background: white;
+  padding: 5px 5px 18px;
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.25);
+}
+
+.polaroidImg {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+/* Main name card */
+.mainCard {
+  background: white;
+  border-radius: 4px;
+  border: 1.5px dashed rgba(139,26,26,0.3);
+  padding: 32px 40px 28px;
+  text-align: center;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 5;
+}
+
+.welcomeTo {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.coupleName {
+  font-family: 'Great Vibes', cursive;
+  font-size: 2.8rem;
+  color: #8B1A1A;
+  line-height: 1.1;
+}
+
+.coupleAnd {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.5rem;
+  color: #8B1A1A;
+  opacity: 0.7;
+  margin: 2px 0;
+}
+
+.cardDivider {
+  width: 60%;
+  height: 1px;
+  background: rgba(139,26,26,0.2);
+  margin: 12px auto;
+}
+
+.venue {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.8rem;
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Date block */
+.dateBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 16px 32px;
+  color: white;
+  z-index: 5;
+}
+
+.dateDay {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dateMonth {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  opacity: 0.9;
+}
+
+.dateYear {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+/* Location */
+.locationBadge {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 100px;
+  z-index: 5;
+}
+
+/* Disco ball */
+.discoBall {
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+  z-index: 10;
+  margin-top: 8px;
+}
+
+.actionBtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 10px;
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  transition: background 0.15s;
+}
+
+.actionBtn:hover { background: rgba(255,255,255,0.32); }
+
+.actionIcon { font-size: 1.6rem; }
+
+.actionLabel {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.actionCount {
+  font-size: 0.7rem;
+  background: rgba(255,255,255,0.3);
+  border-radius: 100px;
+  padding: 1px 8px;
+  min-width: 24px;
+  text-align: center;
+}
