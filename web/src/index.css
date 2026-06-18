@@ -1,0 +1,30 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --burgundy: #300000;
+  --burgundy-light: rgba(48, 0, 0, 0.85);
+  font-family: 'Inter', system-ui, sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  min-height: 100vh;
+  background: #faf8f5;
+  color: #1a1a1a;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}

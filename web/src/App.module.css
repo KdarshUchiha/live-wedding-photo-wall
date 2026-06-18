@@ -1,0 +1,210 @@
+.app {
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 100px;
+}
+
+.header {
+  text-align: center;
+  padding: 48px 16px 24px;
+  background: linear-gradient(180deg, #fff8f8 0%, #faf8f5 100%);
+  border-bottom: 1px solid rgba(48, 0, 0, 0.06);
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 600;
+  color: #300000;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #888;
+  font-weight: 400;
+}
+
+.progressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #300000;
+  z-index: 100;
+  transform-origin: left;
+}
+
+.toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  z-index: 200;
+  white-space: nowrap;
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  color: #999;
+  gap: 12px;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+}
+
+.emptyState h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.emptyState p {
+  font-size: 0.95rem;
+  color: #aaa;
+}
+
+/* Floating pill button */
+.fabContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 32px;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.fab {
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 100px;
+  background: rgba(48, 0, 0, 0.88);
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow:
+    0 4px 24px rgba(48, 0, 0, 0.35),
+    0 1px 4px rgba(0,0,0,0.2),
+    inset 0 0 0 0.5px rgba(255,255,255,0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.fab:hover {
+  transform: translateY(-2px);
+  background: rgba(48, 0, 0, 0.95);
+  box-shadow:
+    0 8px 32px rgba(48, 0, 0, 0.45),
+    0 2px 8px rgba(0,0,0,0.25),
+    inset 0 0 0 0.5px rgba(255,255,255,0.2);
+}
+
+.fab:active {
+  transform: translateY(0);
+}
+
+.fab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error dialog */
+.errorOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 16px;
+}
+
+.errorDialog {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.errorDialog h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.errorDialog p {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.errorBtn {
+  width: 100%;
+  padding: 12px;
+  background: #300000;
+  color: white;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.errorBtn:hover {
+  background: #500000;
+}
