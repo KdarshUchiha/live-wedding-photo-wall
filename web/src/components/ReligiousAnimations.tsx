@@ -1,0 +1,794 @@
+import { motion } from 'framer-motion'
+import type { ReligiousTheme } from '../types'
+import styles from './ReligiousAnimations.module.css'
+
+interface Props {
+  theme: ReligiousTheme
+  color: string
+}
+
+// ─── Shared helpers ───────────────────────────────────────────────────────────
+
+function FloatingSymbol({ symbol, x, y, delay, size = 28, duration = 4 }: {
+  symbol: string; x: string; y: string; delay: number; size?: number; duration?: number
+}) {
+  return (
+    <motion.span
+      className={styles.floatSymbol}
+      style={{ left: x, top: y, fontSize: size }}
+      animate={{ y: [-8, 8, -8], opacity: [0.6, 1, 0.6], rotate: [-8, 8, -8] }}
+      transition={{ duration, delay, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      {symbol}
+    </motion.span>
+  )
+}
+
+function FallingPetal({ symbol, x, delay, size = 20 }: { symbol: string; x: string; delay: number; size?: number }) {
+  return (
+    <motion.span
+      className={styles.fallingPetal}
+      style={{ left: x, fontSize: size }}
+      initial={{ y: -40, opacity: 0, rotate: 0 }}
+      animate={{ y: '110vh', opacity: [0, 0.9, 0.9, 0], rotate: 360 }}
+      transition={{ duration: 6 + Math.random() * 3, delay, repeat: Infinity, ease: 'linear' }}
+    >
+      {symbol}
+    </motion.span>
+  )
+}
+
+// ─── HINDU ────────────────────────────────────────────────────────────────────
+
+function Firecracker({ x, y, delay }: { x: number; y: number; delay: number }) {
+  const arms = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+  const colors = ['#FF6B00', '#FFD700', '#FF1744', '#FF6B00', '#FFAB00', '#FF4081', '#FF6B00', '#FFD700', '#FF1744', '#FF6B00', '#FFAB00', '#FF4081']
+  return (
+    <motion.g
+      initial={{ opacity: 0 }}
+      animate={{ opacity: [0, 1, 1, 0] }}
+      transition={{ duration: 1.4, delay, repeat: Infinity, repeatDelay: 3.5 }}
+    >
+      {arms.map((angle, i) => {
+        const rad = (angle * Math.PI) / 180
+        return (
+          <motion.line
+            key={i}
+            x1={x} y1={y}
+            x2={x + Math.cos(rad) * 40}
+            y2={y + Math.sin(rad) * 40}
+            stroke={colors[i]}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            initial={{ x2: x, y2: y }}
+            animate={{ x2: [x, x + Math.cos(rad) * 55, x + Math.cos(rad) * 40], y2: [y, y + Math.sin(rad) * 55, y + Math.sin(rad) * 40] }}
+            transition={{ duration: 1.0, delay: delay + 0.05 * i, repeat: Infinity, repeatDelay: 3.5 }}
+          />
+        )
+      })}
+      {[0, 72, 144, 216, 288].map((angle, i) => {
+        const rad = (angle * Math.PI) / 180
+        return (
+          <motion.circle
+            key={`dot-${i}`}
+            cx={x + Math.cos(rad) * 48}
+            cy={y + Math.sin(rad) * 48}
+            r="4"
+            fill={colors[i * 2]}
+            initial={{ r: 0 }}
+            animate={{ r: [0, 5, 0] }}
+            transition={{ duration: 1.4, delay: delay + 0.2, repeat: Infinity, repeatDelay: 3.5 }}
+          />
+        )
+      })}
+    </motion.g>
+  )
+}
+
+function HinduCoupleSVG({ color }: { color: string }) {
+  const dark = 'rgba(0,0,0,0.75)'
+  const gold = '#FFD700'
+  const skin = '#D4956A'
+  const red = '#DC143C'
+
+  return (
+    <svg viewBox="0 0 360 210" className={styles.coupleSvg} fill={dark}>
+      {/* ── BRIDE (left, facing right) ── */}
+      <g transform="translate(0,0)">
+        {/* Dupatta flowing behind and over head */}
+        <path d="M52,46 C46,32 58,18 84,20 C104,18 120,28 122,44 C124,54 118,64 114,68 C108,52 100,42 86,38 C72,42 60,56 58,68 C54,58 50,52 52,46 Z" fill={color} opacity="0.8"/>
+        <path d="M52,46 C48,62 46,84 50,104 C56,96 62,86 62,74 C62,64 56,58 58,68 Z" fill={color} opacity="0.4"/>
+        {/* Head */}
+        <ellipse cx="88" cy="74" rx="21" ry="25" fill={skin}/>
+        {/* Bindi */}
+        <circle cx="93" cy="67" r="3.5" fill={red}/>
+        {/* Maang tikka */}
+        <line x1="88" y1="50" x2="88" y2="38" stroke={gold} strokeWidth="1.5"/>
+        <circle cx="88" cy="36" r="3" fill={gold}/>
+        <circle cx="88" cy="36" r="1.5" fill={red}/>
+        {/* Eye — looking right at groom */}
+        <ellipse cx="96" cy="76" rx="5.5" ry="3.5" fill={dark}/>
+        <circle cx="97.5" cy="75.5" r="1.5" fill="white"/>
+        {/* Nose ring */}
+        <circle cx="91" cy="83" r="3" fill="none" stroke={gold} strokeWidth="1.5"/>
+        {/* Neck + necklace */}
+        <rect x="80" y="99" width="17" height="8" rx="4" fill={skin}/>
+        <path d="M76,97 Q88,108 100,97" stroke={gold} fill="none" strokeWidth="1.5"/>
+        <circle cx="88" cy="107" r="2" fill={gold}/>
+        {/* Saree body */}
+        <path d="M70,105 C65,112 63,132 65,155 L111,155 C113,132 111,112 106,105 C100,100 76,100 70,105 Z" fill={color}/>
+        {/* Pallu (saree end draping over shoulder) */}
+        <path d="M106,105 C114,108 120,120 118,142 L111,155 C112,135 114,116 106,105 Z" fill={color} opacity="0.6"/>
+        {/* Saree gold border */}
+        <path d="M65,148 L111,148" stroke={gold} strokeWidth="2" opacity="0.5"/>
+        {/* Left arm extended slightly toward groom */}
+        <path d="M70,112 C60,116 55,124 57,136 C61,128 65,120 70,115 Z" fill={dark}/>
+        {/* Bangles */}
+        <ellipse cx="57" cy="133" rx="7" ry="3.5" fill="none" stroke="#FF4500" strokeWidth="2.5"/>
+        <ellipse cx="57" cy="138" rx="7" ry="3.5" fill="none" stroke={gold} strokeWidth="1.5"/>
+        {/* Hand (slightly open, toward groom) */}
+        <ellipse cx="56" cy="144" rx="6" ry="5" fill={skin} opacity="0.8"/>
+      </g>
+
+      {/* ── GROOM (right, facing left) ── */}
+      <g transform="translate(0,0)">
+        {/* Pagdi / Safa (turban) */}
+        <path d="M214,44 C220,28 240,20 260,26 C276,30 284,42 280,54 C272,46 262,40 248,40 C234,40 224,48 222,58 C218,52 214,48 214,44 Z" fill={color} opacity="0.9"/>
+        {/* Turban band highlight */}
+        <path d="M222,58 C224,52 232,46 248,46 C262,44 272,48 278,54 Q274,60 260,62 Q240,64 222,58 Z" fill={color} opacity="0.4"/>
+        {/* Kalgi (turban ornament) */}
+        <motion.path d="M262,28 C268,22 274,18 272,26 C270,30 266,34 262,36 C260,32 258,28 262,28 Z" fill={gold}
+          animate={{ rotate: [-3, 3, -3] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ transformOrigin: '262px 36px' }}/>
+        {/* Sehra (flower strings hanging from turban — decorative lines) */}
+        {[225, 231, 237, 243].map((x) => (
+          <motion.line key={x} x1={x} y1={62} x2={x - 2} y2={82} stroke={gold} strokeWidth="1" opacity="0.6"
+            animate={{ x2: [x - 4, x + 4, x - 4] }} transition={{ duration: 1.5 + x * 0.01, repeat: Infinity }}/>
+        ))}
+        {/* Head */}
+        <ellipse cx="236" cy="78" rx="21" ry="25" fill={skin}/>
+        {/* Eye — looking left at bride */}
+        <ellipse cx="226" cy="80" rx="5.5" ry="3.5" fill={dark}/>
+        <circle cx="227.5" cy="79.5" r="1.5" fill="white"/>
+        {/* Small moustache */}
+        <path d="M228,89 Q236,92 244,89" stroke={dark} fill="none" strokeWidth="1.5" opacity="0.6"/>
+        {/* Neck */}
+        <rect x="228" y="103" width="17" height="8" rx="4" fill={skin}/>
+        {/* Sherwani body */}
+        <path d="M218,111 C214,118 212,138 214,161 L258,161 C260,138 258,118 254,111 C248,106 224,106 218,111 Z" fill={color}/>
+        {/* Sherwani collar (Nehru collar) */}
+        <path d="M228,107 Q236,103 244,107 Q240,113 236,111 Q232,113 228,107 Z" fill={dark} opacity="0.5"/>
+        {/* Buttons */}
+        {[117, 127, 137, 147].map((y) => (
+          <circle key={y} cx="236" cy={y} r="2.5" fill={gold}/>
+        ))}
+        {/* Right arm extended slightly toward bride */}
+        <path d="M254,118 C264,122 270,130 268,142 C264,134 260,126 254,122 Z" fill={dark}/>
+        {/* Hand */}
+        <ellipse cx="269" cy="146" rx="6" ry="5" fill={skin} opacity="0.8"/>
+      </g>
+
+      {/* ── ROMANTIC EYE-CONTACT HEARTS ── */}
+      {[0.2, 0.5, 0.8, 1.1, 1.4].map((delay, i) => (
+        <motion.text
+          key={i}
+          x={158 + i * 8}
+          y={80}
+          fontSize="14"
+          textAnchor="middle"
+          initial={{ y: 80, opacity: 0, scale: 0 }}
+          animate={{ y: [80, 60, 40], opacity: [0, 1, 0], scale: [0.5, 1.2, 0.8] }}
+          transition={{ duration: 2, delay, repeat: Infinity, repeatDelay: 0.8, ease: 'easeOut' }}
+        >
+          ❤️
+        </motion.text>
+      ))}
+
+      {/* Sparkle dots between their eyes */}
+      {[152, 166, 180, 194, 208].map((x, i) => (
+        <motion.circle
+          key={x}
+          cx={x}
+          cy={78}
+          r="2.5"
+          fill={gold}
+          initial={{ opacity: 0, r: 0 }}
+          animate={{ opacity: [0, 1, 0], r: [0, 3, 0] }}
+          transition={{ duration: 1.2, delay: i * 0.15, repeat: Infinity }}
+        />
+      ))}
+
+      {/* ── FIRECRACKER BURSTS ── */}
+      <Firecracker x={40} y={30} delay={0} />
+      <Firecracker x={320} y={25} delay={1.5} />
+      <Firecracker x={180} y={15} delay={0.8} />
+
+      {/* ── OM SYMBOL ── */}
+      <motion.text
+        x="180" y="195"
+        fontSize="28"
+        textAnchor="middle"
+        fill={gold}
+        animate={{ opacity: [0.4, 1, 0.4], scale: [0.95, 1.05, 0.95] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ filter: `drop-shadow(0 0 8px ${gold})`, transformOrigin: '180px 195px' }}
+      >
+        ॐ
+      </motion.text>
+
+      {/* ── TRADITIONAL SWASTIKA (Hindu sacred geometry) ── */}
+      <motion.g
+        animate={{ opacity: [0.3, 0.55, 0.3] }}
+        transition={{ duration: 4, repeat: Infinity }}
+        transform="translate(326, 168) scale(0.6)"
+      >
+        {/* Traditional Hindu swastika paths */}
+        <path d="M-16,0 L16,0 M0,-16 L0,16 M-16,-16 L-16,0 M16,-16 L16,0 M-16,16 L0,16 M0,-16 L16,-16"
+          stroke={gold} strokeWidth="4" fill="none" strokeLinecap="square"/>
+        <circle cx="-20" cy="-20" r="2" fill={gold}/>
+        <circle cx="20" cy="-20" r="2" fill={gold}/>
+        <circle cx="-20" cy="20" r="2" fill={gold}/>
+        <circle cx="20" cy="20" r="2" fill={gold}/>
+      </motion.g>
+    </svg>
+  )
+}
+
+function HinduScene({ color }: { color: string }) {
+  return (
+    <>
+      {/* Floating diyas */}
+      <FloatingSymbol symbol="🪔" x="6%" y="15%" delay={0} size={24}/>
+      <FloatingSymbol symbol="🪔" x="88%" y="20%" delay={1.2} size={20}/>
+      <FloatingSymbol symbol="🪷" x="3%" y="55%" delay={0.6} size={22}/>
+      <FloatingSymbol symbol="🌸" x="90%" y="60%" delay={1.8} size={20}/>
+      <FloatingSymbol symbol="✨" x="50%" y="8%" delay={0.3} size={18}/>
+      {/* Falling marigold petals */}
+      {['8%','18%','28%','42%','58%','72%','82%','92%'].map((x, i) => (
+        <FallingPetal key={x} symbol={i % 2 === 0 ? '🌼' : '🌸'} x={x} delay={i * 0.7} size={16}/>
+      ))}
+      {/* Couple scene */}
+      <div className={styles.coupleWrap}>
+        <HinduCoupleSVG color={color}/>
+      </div>
+    </>
+  )
+}
+
+// ─── CHRISTIAN ────────────────────────────────────────────────────────────────
+
+function DoveSVG({ x, y, delay }: { x: number; y: number; delay: number }) {
+  return (
+    <motion.g
+      initial={{ x: x - 80, opacity: 0 }}
+      animate={{ x: [x - 80, x + 80], opacity: [0, 1, 1, 0] }}
+      transition={{ duration: 5, delay, repeat: Infinity, repeatDelay: 2 }}
+    >
+      <path d={`M${x},${y} C${x + 10},${y - 8} ${x + 20},${y - 6} ${x + 25},${y} C${x + 20},${y + 4} ${x + 10},${y + 6} ${x},${y} Z`} fill="white" opacity="0.9"/>
+      <path d={`M${x + 5},${y - 2} C${x + 5},${y - 14} ${x + 18},${y - 16} ${x + 22},${y - 8}`} fill="white" opacity="0.9"/>
+      <path d={`M${x + 10},${y + 2} C${x + 10},${y + 12} ${x + 20},${y + 14} ${x + 24},${y + 7}`} fill="white" opacity="0.85"/>
+    </motion.g>
+  )
+}
+
+function ChristianCoupleSVG({ color }: { color: string }) {
+  const dark = 'rgba(0,0,0,0.75)'
+  const gold = '#C0A96E'
+  const skin = '#D4956A'
+  const white = '#ffffff'
+
+  return (
+    <svg viewBox="0 0 360 220" className={styles.coupleSvg} fill={dark}>
+      {/* Church arch behind couple */}
+      <path d="M100,30 L100,180 L260,180 L260,30 Q180,0 100,30 Z" fill="white" opacity="0.06"/>
+      <path d="M130,30 Q180,8 230,30" stroke="white" fill="none" strokeWidth="2" opacity="0.15"/>
+
+      {/* Cross */}
+      <motion.g
+        animate={{ opacity: [0.4, 0.9, 0.4] }}
+        transition={{ duration: 3, repeat: Infinity }}
+      >
+        <rect x="176" y="10" width="8" height="36" rx="2" fill={gold} opacity="0.7"/>
+        <rect x="168" y="20" width="24" height="7" rx="2" fill={gold} opacity="0.7"/>
+      </motion.g>
+
+      {/* BRIDE */}
+      {/* Veil */}
+      <path d="M80,38 Q110,18 138,28 Q148,36 148,52 Q136,38 120,34 Q102,32 90,42 Q84,46 80,54 Q76,46 80,38 Z" fill="white" opacity="0.85"/>
+      <path d="M80,38 Q74,60 76,90 Q80,82 84,72 Q84,62 80,54 Z" fill="white" opacity="0.5"/>
+      {/* Head */}
+      <ellipse cx="118" cy="62" rx="20" ry="24" fill={skin}/>
+      {/* Eye looking right */}
+      <ellipse cx="126" cy="65" rx="5" ry="3" fill={dark}/>
+      <circle cx="127.5" cy="64.5" r="1.5" fill="white"/>
+      {/* Small tiara suggestion */}
+      <path d="M108,40 Q118,34 128,40" stroke={gold} fill="none" strokeWidth="2"/>
+      <circle cx="118" cy="38" r="3" fill={gold}/>
+      {/* Wedding dress (flowing white) */}
+      <path d="M100,86 C96,92 92,110 90,150 L148,150 C148,110 142,92 138,86 Q130,82 118,82 Q106,82 100,86 Z" fill={white} opacity="0.9"/>
+      {/* Dress details */}
+      <path d="M90,150 Q118,158 148,150" stroke={gold} fill="none" strokeWidth="1.5" opacity="0.5"/>
+      {/* Bouquet */}
+      <motion.text x="88" y="122" fontSize="24"
+        animate={{ rotate: [-5, 5, -5] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        style={{ transformOrigin: '88px 122px' }}>
+        💐
+      </motion.text>
+
+      {/* GROOM */}
+      {/* Head */}
+      <ellipse cx="242" cy="64" rx="20" ry="24" fill={skin}/>
+      {/* Eye looking left */}
+      <ellipse cx="234" cy="67" rx="5" ry="3" fill={dark}/>
+      <circle cx="235.5" cy="66.5" r="1.5" fill="white"/>
+      {/* Suit body */}
+      <path d="M224,88 C220,94 218,114 218,152 L264,152 C264,114 262,94 258,88 Q252,84 242,84 Q232,84 224,88 Z" fill={dark} opacity="0.85"/>
+      {/* White shirt + bow tie */}
+      <path d="M234,88 Q242,84 250,88 Q246,96 242,94 Q238,96 234,88 Z" fill={white} opacity="0.9"/>
+      <path d="M238,90 L244,90 L241,94 Z" fill={color} opacity="0.8"/>
+      <path d="M244,90 L240,92 L244,94 Z" fill={color} opacity="0.8"/>
+      {/* Boutonniere */}
+      <circle cx="256" cy="100" r="5" fill={color} opacity="0.7"/>
+      <circle cx="256" cy="100" r="2.5" fill={gold}/>
+
+      {/* ROMANTIC HEARTS */}
+      {[0.2, 0.6, 1.0, 1.4].map((delay, i) => (
+        <motion.text key={i} x={176 + i * 6} y={70} fontSize="16" textAnchor="middle"
+          initial={{ y: 70, opacity: 0 }}
+          animate={{ y: [70, 52, 34], opacity: [0, 1, 0] }}
+          transition={{ duration: 2, delay, repeat: Infinity, repeatDelay: 1 }}>
+          🤍
+        </motion.text>
+      ))}
+
+      {/* Doves */}
+      <DoveSVG x={60} y={25} delay={0}/>
+      <DoveSVG x={60} y={40} delay={1.5}/>
+    </svg>
+  )
+}
+
+function ChristianScene({ color }: { color: string }) {
+  return (
+    <>
+      <FloatingSymbol symbol="🕊️" x="5%" y="12%" delay={0} size={26}/>
+      <FloatingSymbol symbol="🌸" x="88%" y="18%" delay={1} size={22}/>
+      <FloatingSymbol symbol="✝️" x="50%" y="5%" delay={0.5} size={24}/>
+      <FloatingSymbol symbol="🌹" x="4%" y="60%" delay={1.5} size={22}/>
+      <FloatingSymbol symbol="🌹" x="91%" y="65%" delay={0.8} size={20}/>
+      {['10%','25%','40%','60%','75%','90%'].map((x, i) => (
+        <FallingPetal key={x} symbol={i % 2 === 0 ? '🌸' : '🌺'} x={x} delay={i * 0.9} size={16}/>
+      ))}
+      <div className={styles.coupleWrap}>
+        <ChristianCoupleSVG color={color}/>
+      </div>
+    </>
+  )
+}
+
+// ─── MUSLIM ───────────────────────────────────────────────────────────────────
+
+function MuslimScene({ color }: { color: string }) {
+  const gold = '#C0A96E'
+  return (
+    <>
+      <FloatingSymbol symbol="☪️" x="8%" y="10%" delay={0} size={30}/>
+      <FloatingSymbol symbol="🌙" x="85%" y="14%" delay={0.8} size={28}/>
+      <FloatingSymbol symbol="⭐" x="50%" y="6%" delay={0.4} size={22}/>
+      <FloatingSymbol symbol="🌿" x="4%" y="55%" delay={1.2} size={22}/>
+      <FloatingSymbol symbol="🌺" x="90%" y="60%" delay={1.6} size={20}/>
+      {['12%','28%','45%','62%','78%','92%'].map((x, i) => (
+        <FallingPetal key={x} symbol={i % 2 === 0 ? '⭐' : '🌟'} x={x} delay={i * 0.8} size={14}/>
+      ))}
+      <div className={styles.coupleWrap}>
+        <svg viewBox="0 0 360 220" className={styles.coupleSvg}>
+          {/* Arabesque geometric background pattern */}
+          <motion.g animate={{ opacity: [0.08, 0.15, 0.08] }} transition={{ duration: 4, repeat: Infinity }}>
+            {[0, 60, 120, 180, 240, 300].map((angle, i) => {
+              const rad = (angle * Math.PI) / 180
+              return <line key={i} x1={180} y1={110} x2={180 + Math.cos(rad) * 80} y2={110 + Math.sin(rad) * 80} stroke={gold} strokeWidth="1"/>
+            })}
+            <circle cx="180" cy="110" r="80" stroke={gold} strokeWidth="1" fill="none"/>
+            <circle cx="180" cy="110" r="50" stroke={gold} strokeWidth="1" fill="none"/>
+            <circle cx="180" cy="110" r="20" stroke={gold} strokeWidth="1" fill="none"/>
+          </motion.g>
+
+          {/* Bride — hijab/niqab style */}
+          <ellipse cx="110" cy="68" rx="24" ry="28" fill="rgba(0,0,0,0.75)"/>
+          {/* Hijab frame */}
+          <path d="M86,50 Q110,30 134,50 Q138,62 134,78 Q122,66 110,64 Q98,66 86,78 Q82,62 86,50 Z" fill={color} opacity="0.85"/>
+          {/* Face opening */}
+          <ellipse cx="110" cy="68" rx="16" ry="20" fill="#D4956A"/>
+          {/* Eye */}
+          <ellipse cx="118" cy="68" rx="5" ry="3.5" fill="rgba(0,0,0,0.85)"/>
+          <circle cx="119.5" cy="67.5" r="1.5" fill="white"/>
+          {/* Abaya body */}
+          <path d="M88,96 C84,104 82,126 84,160 L136,160 C138,126 136,104 132,96 Q122,90 110,90 Q98,90 88,96 Z" fill={color} opacity="0.8"/>
+          <path d="M84,152 Q110,160 136,152" stroke={gold} fill="none" strokeWidth="1.5" opacity="0.5"/>
+
+          {/* Groom — taqiyah + thobe */}
+          <ellipse cx="250" cy="70" rx="21" ry="25" fill="#D4956A"/>
+          {/* Taqiyah (cap) */}
+          <ellipse cx="250" cy="50" rx="21" ry="10" fill="rgba(0,0,0,0.8)"/>
+          {/* Eye looking left */}
+          <ellipse cx="241" cy="72" rx="5" ry="3.5" fill="rgba(0,0,0,0.85)"/>
+          <circle cx="242.5" cy="71.5" r="1.5" fill="white"/>
+          {/* Beard suggestion */}
+          <path d="M236,88 Q250,96 264,88" fill="rgba(0,0,0,0.4)"/>
+          {/* Thobe (white robe) */}
+          <path d="M230,98 C226,106 224,128 226,162 L274,162 C276,128 274,106 270,98 Q262,92 250,92 Q238,92 230,98 Z" fill="white" opacity="0.9"/>
+          {/* Bisht (cloak over shoulders) */}
+          <path d="M226,100 C218,106 214,120 216,140 L226,162 Z" fill={color} opacity="0.6"/>
+          <path d="M274,100 C282,106 286,120 284,140 L274,162 Z" fill={color} opacity="0.6"/>
+          <path d="M226,100 Q250,96 274,100" stroke={gold} fill="none" strokeWidth="1.5" opacity="0.5"/>
+
+          {/* Crescent + hearts between them */}
+          {[0.3, 0.7, 1.1].map((delay, i) => (
+            <motion.text key={i} x={168 + i * 10} y={75} fontSize="15" textAnchor="middle"
+              initial={{ y: 75, opacity: 0 }} animate={{ y: [75, 55, 35], opacity: [0, 1, 0] }}
+              transition={{ duration: 2.2, delay, repeat: Infinity, repeatDelay: 1 }}>
+              💛
+            </motion.text>
+          ))}
+
+          {/* Crescent moon top */}
+          <motion.text x="180" y="195" fontSize="28" textAnchor="middle" fill={gold}
+            animate={{ opacity: [0.4, 0.9, 0.4], scale: [0.95, 1.05, 0.95] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            style={{ filter: `drop-shadow(0 0 8px ${gold})`, transformOrigin: '180px 195px' }}>
+            ☪
+          </motion.text>
+        </svg>
+      </div>
+    </>
+  )
+}
+
+// ─── JEWISH ───────────────────────────────────────────────────────────────────
+
+function JewishScene({ color }: { color: string }) {
+  const gold = '#C0A96E'
+  return (
+    <>
+      <FloatingSymbol symbol="✡️" x="7%" y="10%" delay={0} size={28}/>
+      <FloatingSymbol symbol="🕎" x="86%" y="12%" delay={1} size={26}/>
+      <FloatingSymbol symbol="🌹" x="4%" y="58%" delay={0.6} size={22}/>
+      <FloatingSymbol symbol="🌹" x="90%" y="62%" delay={1.4} size={22}/>
+      {['15%','35%','55%','75%','90%'].map((x, i) => (
+        <FallingPetal key={x} symbol="⭐" x={x} delay={i * 1.0} size={14}/>
+      ))}
+      <div className={styles.coupleWrap}>
+        <svg viewBox="0 0 360 220" className={styles.coupleSvg}>
+          {/* Chuppah (wedding canopy) */}
+          <rect x="70" y="18" width="220" height="6" rx="3" fill={color} opacity="0.7"/>
+          <line x1="80" y1="18" x2="80" y2="170" stroke={color} strokeWidth="3" opacity="0.5"/>
+          <line x1="280" y1="18" x2="280" y2="170" stroke={color} strokeWidth="3" opacity="0.5"/>
+          <motion.path d="M70,18 Q180,8 290,18" stroke={gold} fill="none" strokeWidth="2" opacity="0.6"
+            animate={{ d: ['M70,18 Q180,8 290,18', 'M70,18 Q180,12 290,18', 'M70,18 Q180,8 290,18'] }}
+            transition={{ duration: 3, repeat: Infinity }}/>
+
+          {/* Star of David rotating */}
+          <motion.text x="180" y="18" fontSize="22" textAnchor="middle" fill={gold}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            style={{ transformOrigin: '180px 18px' }}>
+            ✡
+          </motion.text>
+
+          {/* Bride in white dress */}
+          <ellipse cx="118" cy="68" rx="20" ry="24" fill="#D4956A"/>
+          <path d="M98,46 Q118,32 138,46 Q144,56 140,66 Q130,52 118,50 Q106,52 96,66 Q92,56 98,46 Z" fill="white" opacity="0.9"/>
+          <ellipse cx="126" cy="70" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="127.5" cy="69.5" r="1.5" fill="white"/>
+          <path d="M100,92 C96,100 94,122 96,158 L140,158 C142,122 140,100 136,92 Q128,86 118,86 Q108,86 100,92 Z" fill="white" opacity="0.9"/>
+          <path d="M96,150 Q118,158 140,150" stroke={gold} fill="none" strokeWidth="1.5" opacity="0.6"/>
+
+          {/* Groom in dark suit + kippah */}
+          <ellipse cx="242" cy="70" rx="20" ry="24" fill="#D4956A"/>
+          <ellipse cx="242" cy="50" rx="15" ry="8" fill={color} opacity="0.9"/>
+          <ellipse cx="234" cy="72" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="235.5" cy="71.5" r="1.5" fill="white"/>
+          <path d="M224,94 C220,102 218,124 220,160 L264,160 C266,124 264,102 260,94 Q252,88 242,88 Q232,88 224,94 Z" fill="rgba(0,0,0,0.8)"/>
+          <path d="M234,90 Q242,86 250,90 Q246,98 242,96 Q238,98 234,90 Z" fill="white" opacity="0.8"/>
+          {[102, 114, 126, 138].map((y) => (
+            <circle key={y} cx="242" cy={y} r="2" fill={gold}/>
+          ))}
+
+          {/* Hearts */}
+          {[0.2, 0.5, 0.8, 1.1].map((delay, i) => (
+            <motion.text key={i} x={168 + i * 8} y={74} fontSize="15" textAnchor="middle"
+              initial={{ y: 74, opacity: 0 }} animate={{ y: [74, 54, 34], opacity: [0, 1, 0] }}
+              transition={{ duration: 2, delay, repeat: Infinity, repeatDelay: 1 }}>
+              💛
+            </motion.text>
+          ))}
+
+          <motion.text x="180" y="198" fontSize="24" textAnchor="middle" fill={gold}
+            animate={{ opacity: [0.4, 0.9, 0.4] }} transition={{ duration: 3, repeat: Infinity }}
+            style={{ filter: `drop-shadow(0 0 8px ${gold})` }}>
+            ✡
+          </motion.text>
+        </svg>
+      </div>
+    </>
+  )
+}
+
+// ─── SIKH ─────────────────────────────────────────────────────────────────────
+
+function SikhScene({ color }: { color: string }) {
+  const gold = '#F5A623'
+  return (
+    <>
+      <FloatingSymbol symbol="🪯" x="7%" y="10%" delay={0} size={30}/>
+      <FloatingSymbol symbol="🌸" x="87%" y="15%" delay={0.9} size={24}/>
+      <FloatingSymbol symbol="🌼" x="4%" y="58%" delay={0.5} size={22}/>
+      <FloatingSymbol symbol="✨" x="90%" y="62%" delay={1.5} size={20}/>
+      {['10%','25%','42%','60%','76%','90%'].map((x, i) => (
+        <FallingPetal key={x} symbol={i % 2 === 0 ? '🌸' : '🌼'} x={x} delay={i * 0.8} size={16}/>
+      ))}
+      <div className={styles.coupleWrap}>
+        <svg viewBox="0 0 360 220" className={styles.coupleSvg}>
+          {/* Khanda symbol */}
+          <motion.text x="180" y="28" fontSize="30" textAnchor="middle" fill={gold}
+            animate={{ opacity: [0.5, 1, 0.5], scale: [0.95, 1.05, 0.95] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            style={{ filter: `drop-shadow(0 0 10px ${gold})`, transformOrigin: '180px 28px' }}>
+            🪯
+          </motion.text>
+
+          {/* Bride in red/pink Punjabi dress */}
+          <ellipse cx="112" cy="68" rx="20" ry="24" fill="#D4956A"/>
+          {/* Dupatta + phulkari colors */}
+          <path d="M88,44 Q112,26 136,44 Q140,56 136,68 Q126,52 112,48 Q98,52 88,68 Q84,56 88,44 Z" fill={color} opacity="0.9"/>
+          <ellipse cx="120" cy="70" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="121.5" cy="69.5" r="1.5" fill="white"/>
+          <circle cx="116" cy="64" r="3" fill="#DC143C"/>
+          <path d="M94,92 C90,100 88,122 90,158 L134,158 C136,122 134,100 130,92 Q122,86 112,86 Q102,86 94,92 Z" fill={color} opacity="0.9"/>
+          <path d="M90,150 Q112,158 134,150" stroke={gold} fill="none" strokeWidth="2" opacity="0.6"/>
+          <path d="M130,92 Q140,96 144,110 L134,150 Z" fill={color} opacity="0.5"/>
+          {/* Bangles */}
+          <ellipse cx="88" cy="120" rx="7" ry="3.5" fill="none" stroke="#FF4500" strokeWidth="2.5"/>
+          <ellipse cx="88" cy="125" rx="7" ry="3.5" fill="none" stroke={gold} strokeWidth="1.5"/>
+
+          {/* Groom in sherwani + dastar (Sikh turban) */}
+          {/* Dastar — tall cylindrical turban */}
+          <path d="M214,20 Q238,10 260,20 L264,58 Q244,52 238,52 Q230,52 216,58 Z" fill={color} opacity="0.9"/>
+          <path d="M214,20 Q238,14 260,20 Q252,22 238,22 Q224,22 214,20 Z" fill={gold} opacity="0.6"/>
+          <ellipse cx="238" cy="78" rx="20" ry="24" fill="#D4956A"/>
+          <ellipse cx="230" cy="80" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="231.5" cy="79.5" r="1.5" fill="white"/>
+          {/* Beard (many Sikh grooms have beard) */}
+          <path d="M222,90 Q238,102 254,90 Q250,110 238,114 Q226,110 222,90 Z" fill="rgba(0,0,0,0.5)"/>
+          {/* Sherwani */}
+          <path d="M220,110 C216,118 214,138 216,168 L260,168 C262,138 260,118 256,110 Q248,104 238,104 Q228,104 220,110 Z" fill={color} opacity="0.85"/>
+          {[116, 128, 140, 152].map((y) => (
+            <circle key={y} cx="238" cy={y} r="2.5" fill={gold}/>
+          ))}
+
+          {/* Hearts + golden sparkles between them */}
+          {[0.2, 0.55, 0.9, 1.25].map((delay, i) => (
+            <motion.text key={i} x={156 + i * 10} y={75} fontSize="15" textAnchor="middle"
+              initial={{ y: 75, opacity: 0 }} animate={{ y: [75, 55, 35], opacity: [0, 1, 0] }}
+              transition={{ duration: 2, delay, repeat: Infinity, repeatDelay: 1 }}>
+              💛
+            </motion.text>
+          ))}
+
+          <motion.text x="180" y="200" fontSize="22" textAnchor="middle" fill={gold}
+            animate={{ opacity: [0.4, 0.9, 0.4] }} transition={{ duration: 3, repeat: Infinity }}
+            style={{ filter: `drop-shadow(0 0 8px ${gold})` }}>
+            ੴ
+          </motion.text>
+        </svg>
+      </div>
+    </>
+  )
+}
+
+// ─── BUDDHIST ─────────────────────────────────────────────────────────────────
+
+function BuddhistScene({ color }: { color: string }) {
+  const gold = '#E8A020'
+  return (
+    <>
+      <FloatingSymbol symbol="☸️" x="7%" y="10%" delay={0} size={30}/>
+      <FloatingSymbol symbol="🪷" x="87%" y="14%" delay={1} size={26}/>
+      <FloatingSymbol symbol="🕯️" x="4%" y="56%" delay={0.6} size={22}/>
+      <FloatingSymbol symbol="🌸" x="90%" y="62%" delay={1.4} size={22}/>
+      {/* Cherry blossom fall */}
+      {['8%','20%','34%','50%','66%','80%','92%'].map((x, i) => (
+        <FallingPetal key={x} symbol="🌸" x={x} delay={i * 0.7} size={14}/>
+      ))}
+      <div className={styles.coupleWrap}>
+        <svg viewBox="0 0 360 220" className={styles.coupleSvg}>
+          {/* Dharma wheel */}
+          <motion.text x="180" y="30" fontSize="32" textAnchor="middle" fill={gold}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+            style={{ filter: `drop-shadow(0 0 10px ${gold})`, transformOrigin: '180px 30px' }}>
+            ☸
+          </motion.text>
+
+          {/* Lotus background */}
+          <motion.text x="180" y="175" fontSize="50" textAnchor="middle"
+            animate={{ opacity: [0.08, 0.14, 0.08], scale: [0.98, 1.02, 0.98] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            style={{ transformOrigin: '180px 175px' }}>
+            🪷
+          </motion.text>
+
+          {/* Bride in traditional Buddhist attire */}
+          <ellipse cx="112" cy="70" rx="20" ry="24" fill="#D4956A"/>
+          <path d="M90,48 Q112,32 134,48 Q138,60 134,72 Q124,56 112,52 Q100,56 90,72 Q86,60 90,48 Z" fill={color} opacity="0.85"/>
+          <ellipse cx="120" cy="72" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="121.5" cy="71.5" r="1.5" fill="white"/>
+          <path d="M96,94 C92,102 90,124 92,160 L132,160 C134,124 132,102 128,94 Q120,88 112,88 Q104,88 96,94 Z" fill={color} opacity="0.85"/>
+          <path d="M92,152 Q112,160 132,152" stroke={gold} fill="none" strokeWidth="1.5" opacity="0.5"/>
+
+          {/* Groom */}
+          <ellipse cx="248" cy="72" rx="20" ry="24" fill="#D4956A"/>
+          <path d="M228,50 Q248,34 268,50 Q272,62 268,74 Q258,58 248,54 Q238,58 228,74 Q224,62 228,50 Z" fill={color} opacity="0.8"/>
+          <ellipse cx="240" cy="74" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="241.5" cy="73.5" r="1.5" fill="white"/>
+          <path d="M230,96 C226,104 224,126 226,162 L268,162 C270,126 268,104 264,96 Q256,90 248,90 Q240,90 230,96 Z" fill={color} opacity="0.8"/>
+
+          {/* Lotus petals between them */}
+          {[0.2, 0.6, 1.0, 1.4].map((delay, i) => (
+            <motion.text key={i} x={164 + i * 8} y={76} fontSize="14" textAnchor="middle"
+              initial={{ y: 76, opacity: 0 }} animate={{ y: [76, 56, 36], opacity: [0, 1, 0] }}
+              transition={{ duration: 2.2, delay, repeat: Infinity, repeatDelay: 1 }}>
+              🪷
+            </motion.text>
+          ))}
+
+          <motion.text x="180" y="200" fontSize="22" textAnchor="middle" fill={gold}
+            animate={{ opacity: [0.4, 0.9, 0.4] }} transition={{ duration: 3, repeat: Infinity }}
+            style={{ filter: `drop-shadow(0 0 8px ${gold})` }}>
+            ☸
+          </motion.text>
+        </svg>
+      </div>
+    </>
+  )
+}
+
+// ─── CIVIL ────────────────────────────────────────────────────────────────────
+
+function CivilScene({ color }: { color: string }) {
+  return (
+    <>
+      <FloatingSymbol symbol="💍" x="7%" y="10%" delay={0} size={26}/>
+      <FloatingSymbol symbol="🥂" x="87%" y="14%" delay={0.8} size={24}/>
+      <FloatingSymbol symbol="🌹" x="4%" y="56%" delay={0.5} size={22}/>
+      <FloatingSymbol symbol="✨" x="90%" y="62%" delay={1.3} size={20}/>
+      {['8%','20%','35%','52%','68%','82%','94%'].map((x, i) => (
+        <FallingPetal key={x} symbol={['🎊','✨','💫','🎉','⭐','🌟','💥'][i]} x={x} delay={i * 0.6} size={14}/>
+      ))}
+      <div className={styles.coupleWrap}>
+        <svg viewBox="0 0 360 220" className={styles.coupleSvg}>
+          {/* Orbiting rings animation */}
+          <motion.g
+            animate={{ rotate: 360 }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            style={{ transformOrigin: '180px 30px' }}
+          >
+            <ellipse cx="180" cy="30" rx="30" ry="12" fill="none" stroke={color} strokeWidth="2.5" opacity="0.5"/>
+          </motion.g>
+          <motion.g
+            animate={{ rotate: -360 }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+            style={{ transformOrigin: '180px 30px' }}
+          >
+            <ellipse cx="180" cy="30" rx="30" ry="14" fill="none" stroke="#C0A96E" strokeWidth="2" opacity="0.4"
+              style={{ transform: 'rotateX(60deg)' }}/>
+          </motion.g>
+          <circle cx="180" cy="30" r="8" fill={color} opacity="0.6"/>
+          <circle cx="180" cy="30" r="4" fill="white" opacity="0.5"/>
+
+          {/* Elegant bride */}
+          <ellipse cx="112" cy="68" rx="20" ry="24" fill="#D4956A"/>
+          <path d="M92,46 Q112,30 132,46 Q136,58 132,70 Q122,54 112,50 Q102,54 92,70 Q88,58 92,46 Z" fill="white" opacity="0.9"/>
+          <ellipse cx="120" cy="70" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="121.5" cy="69.5" r="1.5" fill="white"/>
+          <path d="M94,92 C90,100 88,122 90,158 L134,158 C136,122 134,100 130,92 Q122,86 112,86 Q102,86 94,92 Z" fill="white" opacity="0.9"/>
+          <path d="M90,150 Q112,158 134,150" stroke="#C0A96E" fill="none" strokeWidth="1.5" opacity="0.5"/>
+          <motion.text x="90" y="124" fontSize="22"
+            animate={{ rotate: [-5, 5, -5] }} transition={{ duration: 2, repeat: Infinity }}
+            style={{ transformOrigin: '90px 124px' }}>💐</motion.text>
+
+          {/* Groom in suit */}
+          <ellipse cx="248" cy="68" rx="20" ry="24" fill="#D4956A"/>
+          <ellipse cx="240" cy="70" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="241.5" cy="69.5" r="1.5" fill="white"/>
+          <path d="M228,90 C224,98 222,120 224,158 L270,158 C272,120 270,98 266,90 Q258,84 248,84 Q238,84 228,90 Z" fill="rgba(0,0,0,0.8)"/>
+          <path d="M238,86 Q248,82 258,86 Q254,94 248,92 Q242,94 238,86 Z" fill="white" opacity="0.9"/>
+          <path d="M244,88 L252,88 L248,94 Z" fill={color} opacity="0.8"/>
+          {[98, 110, 122].map((y) => (
+            <circle key={y} cx="248" cy={y} r="2.5" fill="#C0A96E"/>
+          ))}
+
+          {/* Hearts */}
+          {[0.2, 0.5, 0.8, 1.1].map((delay, i) => (
+            <motion.text key={i} x={168 + i * 8} y={72} fontSize="15" textAnchor="middle"
+              initial={{ y: 72, opacity: 0 }} animate={{ y: [72, 52, 32], opacity: [0, 1, 0] }}
+              transition={{ duration: 2, delay, repeat: Infinity, repeatDelay: 1 }}>
+              ❤️
+            </motion.text>
+          ))}
+
+          <motion.text x="180" y="200" fontSize="24" textAnchor="middle" fill="#C0A96E"
+            animate={{ opacity: [0.4, 0.9, 0.4] }} transition={{ duration: 3, repeat: Infinity }}
+            style={{ filter: 'drop-shadow(0 0 8px #C0A96E)' }}>
+            ∞
+          </motion.text>
+        </svg>
+      </div>
+    </>
+  )
+}
+
+// ─── OTHER / DEFAULT ──────────────────────────────────────────────────────────
+
+function OtherScene({ color }: { color: string }) {
+  return (
+    <>
+      <FloatingSymbol symbol="💍" x="7%" y="10%" delay={0} size={26}/>
+      <FloatingSymbol symbol="🌹" x="87%" y="14%" delay={0.8} size={24}/>
+      <FloatingSymbol symbol="✨" x="4%" y="56%" delay={0.5} size={22}/>
+      <FloatingSymbol symbol="🎊" x="90%" y="62%" delay={1.3} size={20}/>
+      {['10%','24%','40%','56%','72%','88%'].map((x, i) => (
+        <FallingPetal key={x} symbol={['🌸','🌺','🌹','🌸','💮','🌸'][i]} x={x} delay={i * 0.8} size={16}/>
+      ))}
+      <div className={styles.coupleWrap}>
+        <svg viewBox="0 0 360 220" className={styles.coupleSvg}>
+          <motion.text x="180" y="26" fontSize="22" textAnchor="middle" fill="rgba(255,255,255,0.5)"
+            animate={{ opacity: [0.3, 0.7, 0.3], scale: [0.95, 1.05, 0.95] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            style={{ transformOrigin: '180px 26px' }}>
+            💍
+          </motion.text>
+
+          {/* Generic elegant couple */}
+          <ellipse cx="112" cy="68" rx="20" ry="24" fill="#D4956A"/>
+          <path d="M92,46 Q112,30 132,46 Q136,58 132,70 Q122,54 112,50 Q102,54 92,70 Q88,58 92,46 Z" fill={color} opacity="0.85"/>
+          <ellipse cx="120" cy="70" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="121.5" cy="69.5" r="1.5" fill="white"/>
+          <path d="M94,92 C90,100 88,122 90,158 L134,158 C136,122 134,100 130,92 Q122,86 112,86 Q102,86 94,92 Z" fill={color} opacity="0.85"/>
+          <path d="M90,150 Q112,158 134,150" stroke="#C0A96E" fill="none" strokeWidth="1.5" opacity="0.4"/>
+
+          <ellipse cx="248" cy="68" rx="20" ry="24" fill="#D4956A"/>
+          <ellipse cx="240" cy="70" rx="5" ry="3" fill="rgba(0,0,0,0.8)"/>
+          <circle cx="241.5" cy="69.5" r="1.5" fill="white"/>
+          <path d="M228,90 C224,98 222,120 224,158 L270,158 C272,120 270,98 266,90 Q258,84 248,84 Q238,84 228,90 Z" fill={color} opacity="0.8"/>
+
+          {[0.2, 0.6, 1.0, 1.4].map((delay, i) => (
+            <motion.text key={i} x={164 + i * 8} y={72} fontSize="16" textAnchor="middle"
+              initial={{ y: 72, opacity: 0 }} animate={{ y: [72, 52, 32], opacity: [0, 1, 0] }}
+              transition={{ duration: 2, delay, repeat: Infinity, repeatDelay: 1 }}>
+              ❤️
+            </motion.text>
+          ))}
+        </svg>
+      </div>
+    </>
+  )
+}
+
+// ─── MAIN EXPORT ──────────────────────────────────────────────────────────────
+
+export default function ReligiousAnimations({ theme, color }: Props) {
+  return (
+    <div className={styles.container}>
+      {theme === 'hindu'     && <HinduScene color={color} />}
+      {theme === 'christian' && <ChristianScene color={color} />}
+      {theme === 'muslim'    && <MuslimScene color={color} />}
+      {theme === 'jewish'    && <JewishScene color={color} />}
+      {theme === 'sikh'      && <SikhScene color={color} />}
+      {theme === 'buddhist'  && <BuddhistScene color={color} />}
+      {theme === 'civil'     && <CivilScene color={color} />}
+      {theme === 'other'     && <OtherScene color={color} />}
+    </div>
+  )
+}

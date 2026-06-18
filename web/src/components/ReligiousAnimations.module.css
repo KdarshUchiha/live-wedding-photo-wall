@@ -1,0 +1,39 @@
+.container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.floatSymbol {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  z-index: 3;
+}
+
+.fallingPetal {
+  position: absolute;
+  top: -40px;
+  pointer-events: none;
+  user-select: none;
+  z-index: 3;
+}
+
+.coupleWrap {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, 95vw);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.22;
+}
+
+.coupleSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+}

@@ -3,8 +3,17 @@ import { motion } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { usePhotos } from '../hooks/usePhotos'
 import { RELIGIOUS_THEMES } from '../config/themes'
+import ReligiousAnimations from '../components/ReligiousAnimations'
 import type { Wedding } from '../types'
 import styles from './WeddingDetailPage.module.css'
+
+function darkenHex(hex: string, amount = 0.35): string {
+  const num = parseInt(hex.replace('#', ''), 16)
+  const r = Math.max(0, (num >> 16) - Math.round(255 * amount))
+  const g = Math.max(0, ((num >> 8) & 0xff) - Math.round(255 * amount))
+  const b = Math.max(0, (num & 0xff) - Math.round(255 * amount))
+  return `rgb(${r},${g},${b})`
+}
 
 interface Props {
   wedding: Wedding
@@ -74,13 +83,15 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
   const { day, month, year } = formatDate(wedding.date)
   const isAdmin = user.uid === wedding.createdBy
   const theme = RELIGIOUS_THEMES[wedding.religiousTheme || 'other']
+  const bgColor = darkenHex(wedding.themeColor || '#8B1A1A', 0.28)
   const previewPhotos = photos.slice(0, 5)
   const today = new Date().toISOString().slice(0, 10)
   const isLive = wedding.date === today
   const isPast = wedding.date < today
 
   return (
-    <div className={styles.page} style={{ background: theme.detailBg }}>
+    <div className={styles.page} style={{ background: bgColor }}>
+      <ReligiousAnimations theme={wedding.religiousTheme || 'other'} color={wedding.themeColor || '#8B1A1A'} />
       {isAdmin && <div className={styles.adminBadge}>👑 Managing</div>}
       <button className={styles.backBtn} onClick={onBack} aria-label="Go back">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
