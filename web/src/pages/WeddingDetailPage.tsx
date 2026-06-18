@@ -124,11 +124,11 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
         {/* Floating polaroid previews */}
         {previewPhotos.map((photo, i) => {
           const positions = [
-            { left: '-2%', top: '8%', rotate: '-8deg' },
-            { left: '-4%', top: '22%', rotate: '5deg' },
-            { left: '2%', top: '38%', rotate: '-4deg' },
-            { right: '-3%', top: '12%', rotate: '9deg' },
-            { right: '-2%', top: '30%', rotate: '-6deg' },
+            { left: '4%', top: '6%', rotate: '-8deg' },
+            { left: '2%', top: '22%', rotate: '5deg' },
+            { left: '6%', top: '40%', rotate: '-4deg' },
+            { right: '4%', top: '10%', rotate: '9deg' },
+            { right: '3%', top: '28%', rotate: '-6deg' },
           ]
           const pos = positions[i] || positions[0]
           return (

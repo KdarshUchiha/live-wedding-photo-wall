@@ -12,9 +12,17 @@ export function usePhotos(weddingId: string, albumId?: string) {
       ? [where('albumId', '==', albumId), orderBy('timestamp', 'desc')]
       : [orderBy('timestamp', 'desc')]
     const q = query(collection(db, 'weddings', weddingId, 'photos'), ...constraints)
-    return onSnapshot(q, (snap) => {
-      setPhotos(snap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Photo, 'id'>) })))
-    })
+    return onSnapshot(q,
+      (snap) => {
+        setPhotos(snap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Photo, 'id'>) })))
+      },
+      (error) => {
+        console.error('[usePhotos] Firestore error:', error.message)
+        if (error.message.includes('index')) {
+          console.error('[usePhotos] A composite index is required. Check Firebase Console → Firestore → Indexes. You need: Collection group: photos, Fields: albumId ASC + timestamp DESC')
+        }
+      }
+    )
   }, [weddingId, albumId])
 
   return photos
