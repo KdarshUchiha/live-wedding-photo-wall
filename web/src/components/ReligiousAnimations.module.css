@@ -6,13 +6,6 @@
   z-index: 2;
 }
 
-.floatSymbol {
-  position: absolute;
-  pointer-events: none;
-  user-select: none;
-  z-index: 3;
-}
-
 .fallingPetal {
   position: absolute;
   top: -40px;
@@ -21,63 +14,71 @@
   z-index: 3;
 }
 
-/* Bride — anchored to left side */
-.brideWrap {
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+  z-index: 3;
+}
+
+/* Couple image — centered at bottom */
+.coupleImageWrap {
   position: absolute;
   bottom: 0;
-  height: 75vh;
-  width: 240px;
-  pointer-events: none;
-  z-index: 2;
-  transition: left 2s ease-in-out;
-  opacity: 0.85;
-  filter: drop-shadow(2px 4px 16px rgba(0,0,0,0.35));
-}
-
-/* Groom — anchored to right side */
-.groomWrap {
-  position: absolute;
-  bottom: 0;
-  height: 75vh;
-  width: 240px;
-  pointer-events: none;
-  z-index: 2;
-  transition: right 2s ease-in-out;
-  opacity: 0.85;
-  filter: drop-shadow(-2px 4px 16px rgba(0,0,0,0.35));
-}
-
-.brideSvg, .groomSvg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Married state overlay — hearts burst */
-.marriedBurst {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  pointer-events: none;
-}
-
-/* Legacy coupleWrap for non-Hindu themes */
-.coupleWrap {
-  position: absolute;
-  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(680px, 100vw);
-  pointer-events: none;
+  width: min(500px, 90vw);
+  max-height: 75vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   z-index: 2;
-  opacity: 0.5;
-  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
 }
 
-.coupleSvg {
+.coupleImage {
   width: 100%;
   height: auto;
+  max-height: 75vh;
+  object-fit: contain;
+  object-position: bottom;
   display: block;
+  border-radius: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+  mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
+}
+
+/* Soft glow behind the couple */
+.coupleGlow {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 60%;
+  background: radial-gradient(ellipse, rgba(255,215,0,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Hearts burst container */
+.heartsBurst {
+  position: absolute;
+  bottom: 30%;
+  left: 0;
+  right: 0;
+  height: 200px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.heart {
+  position: absolute;
+  bottom: 0;
+  font-size: 22px;
+  pointer-events: none;
 }
