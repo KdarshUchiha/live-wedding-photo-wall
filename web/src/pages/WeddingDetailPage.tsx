@@ -89,9 +89,14 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
   const isLive = wedding.date === today
   const isPast = wedding.date < today
 
+  // Calculate closeness: 0 = 30+ days away, 1 = today/past (married)
+  const msUntil = new Date(wedding.date + 'T00:00:00').getTime() - new Date().getTime()
+  const daysUntil = Math.max(0, msUntil / 86400000)
+  const closeness = isPast || isLive ? 1 : Math.min(1, Math.max(0, 1 - daysUntil / 30))
+
   return (
     <div className={styles.page} style={{ background: bgColor }}>
-      <ReligiousAnimations theme={wedding.religiousTheme || 'other'} color={wedding.themeColor || '#8B1A1A'} />
+      <ReligiousAnimations theme={wedding.religiousTheme || 'other'} color={wedding.themeColor || '#8B1A1A'} closeness={closeness} />
       {isAdmin && <div className={styles.adminBadge}>👑 Managing</div>}
       <button className={styles.backBtn} onClick={onBack} aria-label="Go back">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

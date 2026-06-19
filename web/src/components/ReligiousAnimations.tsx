@@ -5,6 +5,7 @@ import styles from './ReligiousAnimations.module.css'
 interface Props {
   theme: ReligiousTheme
   color: string
+  closeness?: number // 0 = far apart (30+ days), 1 = married (countdown 0)
 }
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
@@ -324,23 +325,214 @@ function HinduCoupleSVG({ color }: { color: string }) {
   )
 }
 
-function HinduScene({ color }: { color: string }) {
+function HinduBrideSVG({ color }: { color: string }) {
+  const gold = '#FFD700'
+  const skin = '#F5C6A0'
+  const hair = '#1a0a00'
+  const red = '#DC143C'
+
+  return (
+    <svg viewBox="0 0 200 500" className={styles.brideSvg} style={{ transform: 'scaleX(-1)' }}>
+      {/* Long flowing hair */}
+      <path d="M60,80 C50,110 45,200 55,320 L75,320 C70,200 65,120 70,85 Z" fill={hair} opacity="0.85"/>
+      <path d="M140,80 C150,110 155,200 145,320 L125,320 C130,200 135,120 130,85 Z" fill={hair} opacity="0.85"/>
+
+      {/* Dupatta over head */}
+      <path d="M50,50 C65,20 135,20 150,50 C155,65 152,80 145,90 C130,65 110,50 100,48 C90,50 70,65 55,90 C48,80 45,65 50,50 Z" fill={color} opacity="0.9"/>
+      <path d="M50,50 C42,80 38,140 44,220 Q50,180 55,140 C52,110 50,80 55,90 Z" fill={color} opacity="0.5"/>
+
+      {/* Head — tall elegant manhwa proportions */}
+      <ellipse cx="100" cy="100" rx="42" ry="50" fill={skin}/>
+
+      {/* Big manhwa eyes */}
+      <ellipse cx="80" cy="100" rx="14" ry="16" fill="white"/>
+      <ellipse cx="120" cy="100" rx="14" ry="16" fill="white"/>
+      <ellipse cx="84" cy="100" rx="10" ry="13" fill="#2D1500"/>
+      <ellipse cx="124" cy="100" rx="10" ry="13" fill="#2D1500"/>
+      <ellipse cx="86" cy="97" rx="7" ry="9" fill="#0a0400"/>
+      <ellipse cx="126" cy="97" rx="7" ry="9" fill="#0a0400"/>
+      <circle cx="82" cy="92" r="4" fill="white"/>
+      <circle cx="122" cy="92" r="4" fill="white"/>
+      <circle cx="88" cy="102" r="2.5" fill="white" opacity="0.6"/>
+      <circle cx="128" cy="102" r="2.5" fill="white" opacity="0.6"/>
+      {/* Eyelashes */}
+      <path d="M66,88 Q72,82 80,86" stroke={hair} strokeWidth="2.5" fill="none"/>
+      <path d="M120,86 Q128,82 134,88" stroke={hair} strokeWidth="2.5" fill="none"/>
+
+      {/* Bindi */}
+      <circle cx="100" cy="72" r="6" fill={red}/>
+      <circle cx="100" cy="72" r="3" fill={gold}/>
+
+      {/* Maang tikka */}
+      <line x1="100" y1="60" x2="100" y2="42" stroke={gold} strokeWidth="2.5"/>
+      <circle cx="100" cy="40" r="5" fill={gold}/>
+
+      {/* Nose */}
+      <path d="M97,112 Q100,117 103,112" stroke="#c08060" strokeWidth="1.5" fill="none"/>
+      {/* Nose ring */}
+      <circle cx="103" cy="115" r="4" fill="none" stroke={gold} strokeWidth="2"/>
+
+      {/* Smile */}
+      <path d="M85,125 Q100,136 115,125" stroke="#b05050" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+
+      {/* Blush */}
+      <ellipse cx="70" cy="118" rx="10" ry="6" fill="#FFB6C1" opacity="0.4"/>
+      <ellipse cx="130" cy="118" rx="10" ry="6" fill="#FFB6C1" opacity="0.4"/>
+
+      {/* Neck */}
+      <rect x="86" y="148" width="28" height="16" rx="8" fill={skin}/>
+
+      {/* Necklace */}
+      <path d="M72,160 Q100,178 128,160" stroke={gold} strokeWidth="3.5" fill="none"/>
+      <circle cx="100" cy="176" r="5" fill={gold}/>
+      <circle cx="88" cy="172" r="3" fill={gold}/>
+      <circle cx="112" cy="172" r="3" fill={gold}/>
+
+      {/* Lehenga body */}
+      <path d="M65,168 C58,195 50,280 42,440 L158,440 C150,280 142,195 135,168 Q120,158 100,158 Q80,158 65,168 Z" fill={color}/>
+
+      {/* Gold border at bottom */}
+      <path d="M42,425 Q100,445 158,425" stroke={gold} strokeWidth="4" fill="none" opacity="0.7"/>
+      <path d="M45,415 Q100,435 155,415" stroke={gold} strokeWidth="2" fill="none" opacity="0.4"/>
+
+      {/* Pallu drape */}
+      <path d="M135,168 C150,175 158,210 155,300 L145,400 C150,280 152,200 135,172 Z" fill={color} opacity="0.6"/>
+
+      {/* Arm + bangles */}
+      <path d="M65,180 C50,190 42,210 45,240" stroke={skin} strokeWidth="12" fill="none" strokeLinecap="round"/>
+      <ellipse cx="44" cy="230" rx="9" ry="4.5" fill="none" stroke="#FF4500" strokeWidth="3"/>
+      <ellipse cx="44" cy="238" rx="9" ry="4.5" fill="none" stroke={gold} strokeWidth="2.5"/>
+      <ellipse cx="44" cy="246" rx="9" ry="4.5" fill="none" stroke="#FF4500" strokeWidth="3"/>
+
+      {/* Hand */}
+      <ellipse cx="44" cy="256" rx="10" ry="9" fill={skin}/>
+    </svg>
+  )
+}
+
+function HinduGroomSVG({ color }: { color: string }) {
+  const gold = '#FFD700'
+  const skin = '#F5C6A0'
+  const hair = '#1a0a00'
+
+  return (
+    <svg viewBox="0 0 200 500" className={styles.groomSvg}>
+      {/* Pagdi (turban) — tall and grand */}
+      <path d="M40,30 C55,0 145,0 160,30 C168,48 165,65 155,75 C140,50 120,38 100,36 C80,38 60,50 45,75 C35,65 32,48 40,30 Z" fill={color}/>
+      {/* Turban folds */}
+      <path d="M45,75 C60,58 80,48 100,46 C120,48 140,58 155,75 Q140,82 120,84 Q80,84 60,82 Z" fill={color} opacity="0.5"/>
+      <path d="M55,78 Q100,70 145,78" stroke={gold} strokeWidth="3" fill="none" opacity="0.8"/>
+
+      {/* Kalgi feather */}
+      <path d="M145,22 C158,10 168,4 164,20 C162,30 155,42 148,48 C144,38 142,28 145,22 Z" fill={gold}/>
+
+      {/* Sehra strings */}
+      {[55, 67, 79, 91, 103, 115].map((x) => (
+        <g key={x}>
+          <line x1={x} y1={84} x2={x} y2={108} stroke={gold} strokeWidth="1.5" opacity="0.5"/>
+          <circle cx={x} cy={108} r="3" fill="white" opacity="0.6"/>
+        </g>
+      ))}
+
+      {/* Head — manhwa tall face */}
+      <ellipse cx="100" cy="105" rx="42" ry="48" fill={skin}/>
+
+      {/* Big manhwa eyes */}
+      <ellipse cx="80" cy="108" rx="13" ry="15" fill="white"/>
+      <ellipse cx="120" cy="108" rx="13" ry="15" fill="white"/>
+      <ellipse cx="76" cy="108" rx="10" ry="12" fill="#2D1500"/>
+      <ellipse cx="116" cy="108" rx="10" ry="12" fill="#2D1500"/>
+      <ellipse cx="74" cy="105" rx="7" ry="9" fill="#0a0400"/>
+      <ellipse cx="114" cy="105" rx="7" ry="9" fill="#0a0400"/>
+      <circle cx="72" cy="100" r="4" fill="white"/>
+      <circle cx="112" cy="100" r="4" fill="white"/>
+      <circle cx="78" cy="110" r="2.5" fill="white" opacity="0.6"/>
+      <circle cx="118" cy="110" r="2.5" fill="white" opacity="0.6"/>
+      {/* Eyebrows */}
+      <path d="M66,92 Q78,85 90,92" stroke={hair} strokeWidth="3" fill="none"/>
+      <path d="M110,92 Q122,85 134,92" stroke={hair} strokeWidth="3" fill="none"/>
+
+      {/* Nose */}
+      <path d="M97,120 Q100,126 103,120" stroke="#c08060" strokeWidth="1.5" fill="none"/>
+
+      {/* Confident smile */}
+      <path d="M84,135 Q100,146 116,135" stroke="#b05050" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+
+      {/* Neck */}
+      <rect x="86" y="152" width="28" height="16" rx="8" fill={skin}/>
+
+      {/* Sherwani body */}
+      <path d="M60,170 C52,200 46,285 40,440 L160,440 C154,285 148,200 140,170 Q125,160 100,160 Q75,160 60,170 Z" fill={color}/>
+
+      {/* Nehru collar */}
+      <path d="M82,162 Q100,155 118,162 Q112,174 100,170 Q88,174 82,162 Z" fill={color} opacity="0.7" stroke={gold} strokeWidth="1.5"/>
+
+      {/* Gold buttons */}
+      {[185, 205, 225, 245, 265, 285].map((y) => (
+        <circle key={y} cx="100" cy={y} r="4" fill={gold}/>
+      ))}
+
+      {/* Stole/dupatta */}
+      <path d="M140,170 C158,180 165,220 160,320 L150,420 C155,300 158,210 140,175 Z" fill={gold} opacity="0.2"/>
+
+      {/* Arm reaching */}
+      <path d="M140,195 C158,205 165,225 162,260" stroke={skin} strokeWidth="12" fill="none" strokeLinecap="round"/>
+      {/* Hand */}
+      <ellipse cx="162" cy="265" rx="10" ry="9" fill={skin}/>
+    </svg>
+  )
+}
+
+function HinduScene({ color, closeness = 0.5 }: { color: string; closeness?: number }) {
+  // closeness 0 = far apart, 1 = together/married
+  // bride starts at left: -5% (far) to 25% (close)
+  // groom starts at right: -5% (far) to 25% (close)
+  const brideLeft = `${-5 + closeness * 30}%`
+  const groomRight = `${-5 + closeness * 30}%`
+
   return (
     <>
-      {/* Floating diyas */}
-      <FloatingSymbol symbol="🪔" x="6%" y="15%" delay={0} size={24}/>
-      <FloatingSymbol symbol="🪔" x="88%" y="20%" delay={1.2} size={20}/>
-      <FloatingSymbol symbol="🪷" x="3%" y="55%" delay={0.6} size={22}/>
-      <FloatingSymbol symbol="🌸" x="90%" y="60%" delay={1.8} size={20}/>
-      <FloatingSymbol symbol="✨" x="50%" y="8%" delay={0.3} size={18}/>
-      {/* Falling marigold petals */}
-      {['8%','18%','28%','42%','58%','72%','82%','92%'].map((x, i) => (
-        <FallingPetal key={x} symbol={i % 2 === 0 ? '🌼' : '🌸'} x={x} delay={i * 0.7} size={16}/>
+      <FloatingSymbol symbol="🪔" x="6%" y="12%" delay={0} size={26}/>
+      <FloatingSymbol symbol="🪔" x="88%" y="16%" delay={1.2} size={22}/>
+      <FloatingSymbol symbol="🪷" x="3%" y="50%" delay={0.6} size={24}/>
+      <FloatingSymbol symbol="🌸" x="92%" y="55%" delay={1.8} size={22}/>
+      <FloatingSymbol symbol="✨" x="50%" y="6%" delay={0.3} size={20}/>
+      {['6%','16%','26%','40%','56%','70%','82%','94%'].map((x, i) => (
+        <FallingPetal key={x} symbol={i % 2 === 0 ? '🌼' : '🌸'} x={x} delay={i * 0.6} size={18}/>
       ))}
-      {/* Couple scene */}
-      <div className={styles.coupleWrap}>
-        <HinduCoupleSVG color={color}/>
+
+      {/* Bride on the LEFT */}
+      <div className={styles.brideWrap} style={{ left: brideLeft }}>
+        <HinduBrideSVG color={color} />
       </div>
+
+      {/* Groom on the RIGHT */}
+      <div className={styles.groomWrap} style={{ right: groomRight }}>
+        <HinduGroomSVG color={color} />
+      </div>
+
+      {/* Hearts between when close enough */}
+      {closeness > 0.5 && (
+        <div className={styles.marriedBurst}>
+          {[0, 0.3, 0.6, 0.9, 1.2, 1.5].map((delay, i) => (
+            <motion.span
+              key={i}
+              style={{ position: 'absolute', left: `${(i - 3) * 20}px`, fontSize: 20 + closeness * 14 }}
+              animate={{ y: [0, -40, -80], opacity: [0, 1, 0], scale: [0.5, 1.2, 0.6] }}
+              transition={{ duration: 2.5, delay, repeat: Infinity, repeatDelay: 0.5 }}
+            >
+              {i % 3 === 0 ? '❤️' : i % 3 === 1 ? '💕' : '✨'}
+            </motion.span>
+          ))}
+        </div>
+      )}
+
+      {/* Firecrackers */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+        <Firecracker x={50} y={60} delay={0} />
+        <Firecracker x={350} y={50} delay={1.5} />
+        <Firecracker x={200} y={30} delay={0.7} />
+      </svg>
     </>
   )
 }
@@ -868,10 +1060,10 @@ function OtherScene({ color }: { color: string }) {
 
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────────
 
-export default function ReligiousAnimations({ theme, color }: Props) {
+export default function ReligiousAnimations({ theme, color, closeness = 0.5 }: Props) {
   return (
     <div className={styles.container}>
-      {theme === 'hindu'     && <HinduScene color={color} />}
+      {theme === 'hindu'     && <HinduScene color={color} closeness={closeness} />}
       {theme === 'christian' && <ChristianScene color={color} />}
       {theme === 'muslim'    && <MuslimScene color={color} />}
       {theme === 'jewish'    && <JewishScene color={color} />}
