@@ -338,3 +338,35 @@
   min-width: 24px;
   text-align: center;
 }
+
+/* Music Player */
+.musicPlayer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(16px);
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.25);
+  z-index: 10;
+  margin-top: 8px;
+}
+
+.musicIcon {
+  font-size: 1.2rem;
+}
+
+.musicLink {
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  opacity: 0.9;
+  transition: opacity 0.15s;
+}
+.musicLink:hover {
+  opacity: 1;
+  text-decoration: underline;
+}

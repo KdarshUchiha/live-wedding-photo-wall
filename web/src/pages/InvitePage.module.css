@@ -2,10 +2,11 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f9f3e8 0%, #f0e8d6 50%, #e8dcc8 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 60px 16px;
   position: relative;
+  gap: 32px;
 }
 
 .backBtn {
@@ -127,7 +128,105 @@
   margin-bottom: 20px;
 }
 
-.rsvpBtn {
+/* RSVP Section */
+.rsvpSection {
+  background: #fffdf7;
+  max-width: 480px;
+  width: 100%;
+  padding: 32px 40px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 4px;
+}
+
+.rsvpTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #8B1A1A;
+  text-align: center;
+  letter-spacing: 0.12em;
+  margin-bottom: 24px;
+}
+
+.rsvpForm {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  letter-spacing: 0.04em;
+}
+
+.input, .select, .textarea {
+  padding: 12px 14px;
+  border: 1px solid rgba(201,169,110,0.4);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fdfbf6;
+  color: #333;
+  transition: border-color 0.2s;
+}
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: #c9a96e;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.select {
+  cursor: pointer;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.radioLabel {
+  flex: 1;
+  text-align: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(201,169,110,0.4);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fdfbf6;
+}
+
+.radioLabel:hover {
+  border-color: #c9a96e;
+}
+
+.radioActive {
+  background: #8B1A1A;
+  color: white;
+  border-color: #8B1A1A;
+}
+
+.radioInput {
+  display: none;
+}
+
+.submitBtn {
   padding: 14px 44px;
   background: #8B1A1A;
   color: white;
@@ -138,5 +237,111 @@
   border-radius: 2px;
   box-shadow: 0 4px 16px rgba(139,26,26,0.3);
   transition: background 0.15s, box-shadow 0.15s;
+  margin-top: 8px;
 }
-.rsvpBtn:hover { background: #a82020; box-shadow: 0 6px 20px rgba(139,26,26,0.4); }
+.submitBtn:hover { background: #a82020; box-shadow: 0 6px 20px rgba(139,26,26,0.4); }
+.submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Thank you */
+.thankYou {
+  text-align: center;
+  padding: 24px 0;
+}
+.thankYouIcon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 12px;
+}
+.thankYouHeading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: #8B1A1A;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.thankYouText {
+  font-size: 0.9rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+/* Gift Registry */
+.registry {
+  background: #fffdf7;
+  max-width: 480px;
+  width: 100%;
+  padding: 32px 40px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.registryTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #8B1A1A;
+  margin-bottom: 8px;
+}
+
+.registryDesc {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #888;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.registryLinks {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.registryLink {
+  padding: 10px 20px;
+  background: #fdfbf6;
+  border: 1px solid rgba(201,169,110,0.4);
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.registryLink:hover {
+  background: #8B1A1A;
+  color: white;
+  border-color: #8B1A1A;
+}
+
+/* QR Code */
+.qrSection {
+  background: #fffdf7;
+  max-width: 480px;
+  width: 100%;
+  padding: 32px 40px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qrCode {
+  margin-top: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.qrText {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #888;
+  margin-top: 12px;
+}

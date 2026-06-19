@@ -5,6 +5,7 @@ import { usePhotos } from '../hooks/usePhotos'
 import { uploadPhoto, deletePhoto } from '../services/photoService'
 import PhotoThumbnail from '../components/PhotoThumbnail'
 import PhotoDetail from '../components/PhotoDetail'
+import Slideshow from '../components/Slideshow'
 import type { Album, Photo, UploadState, Wedding } from '../types'
 import styles from './PhotoGalleryPage.module.css'
 
@@ -20,6 +21,7 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
   const photos = usePhotos(wedding.id, album.id || undefined)
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' })
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const [showSlideshow, setShowSlideshow] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -62,6 +64,11 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
           <h1 className={styles.title}>{album.emoji} {album.name}</h1>
           <p className={styles.subtitle}>{wedding.bride} &amp; {wedding.groom}</p>
         </div>
+        {photos.length > 0 && (
+          <button className={styles.slideshowBtn} onClick={() => setShowSlideshow(true)}>
+            ▶ Slideshow
+          </button>
+        )}
         {isAdmin && <span className={styles.adminBadge}>👑 Admin</span>}
       </header>
 
@@ -132,6 +139,10 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
             onIndexChange={setSelectedIndex} />
         )}
       </AnimatePresence>
+
+      {showSlideshow && photos.length > 0 && (
+        <Slideshow photos={photos} onClose={() => setShowSlideshow(false)} />
+      )}
 
       {error && (
         <div className={styles.errorOverlay} onClick={() => setError(null)}>

@@ -212,6 +212,15 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
             <span className={styles.actionLabel}>Timeline</span>
           </motion.button>
         </div>
+
+        {wedding.musicUrl && (
+          <div className={styles.musicPlayer}>
+            <span className={styles.musicIcon}>🎵</span>
+            <a href={wedding.musicUrl} target="_blank" rel="noopener noreferrer" className={styles.musicLink}>
+              Listen to our playlist
+            </a>
+          </div>
+        )}
       </div>
     </div>
   )

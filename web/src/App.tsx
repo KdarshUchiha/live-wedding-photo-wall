@@ -79,6 +79,7 @@ export default function App() {
     return (
       <InvitePage
         wedding={page.wedding}
+        user={user}
         onBack={() => setPage({ name: 'detail', wedding: page.wedding })}
       />
     )

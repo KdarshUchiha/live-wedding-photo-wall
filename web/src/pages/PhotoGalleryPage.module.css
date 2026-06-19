@@ -80,6 +80,22 @@
 }
 .fab:hover { transform: translateY(-2px); background: rgba(139,26,26,1); }
 
+.slideshowBtn {
+  margin-left: auto;
+  padding: 6px 14px;
+  background: rgba(139,26,26,0.08);
+  color: #8B1A1A;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.slideshowBtn:hover {
+  background: rgba(139,26,26,0.16);
+}
+
 .errorOverlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5);
   display: flex; align-items: center; justify-content: center; z-index: 500; padding: 16px;
