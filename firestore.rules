@@ -29,8 +29,8 @@ service cloud.firestore {
 
       match /albums/{albumId} {
         allow read: if request.auth != null;
-        // Only wedding creator can create/delete albums
-        allow create: if request.auth != null &&
+        // Only wedding creator can create/update/delete albums
+        allow create, update: if request.auth != null &&
           get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid;
         allow delete: if request.auth != null &&
           get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid;

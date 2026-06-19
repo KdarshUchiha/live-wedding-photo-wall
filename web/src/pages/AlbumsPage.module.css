@@ -55,14 +55,28 @@
   background: rgba(139,26,26,0.08); padding: 2px 8px; border-radius: 100px;
 }
 
-.deleteBtn {
+.adminActions {
   position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 6px;
+  opacity: 0; transition: opacity 0.15s;
+}
+.card:hover .adminActions { opacity: 1; }
+
+.deleteBtn {
   width: 28px; height: 28px; border-radius: 50%;
   background: #f5f1ec; color: #888; font-size: 0.75rem;
   display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.15s;
+  transition: background 0.15s;
 }
-.card:hover .deleteBtn { opacity: 1; }
+.deleteBtn:hover { background: #ffe0e0; }
+
+.changePinBtn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #f5f1ec; color: #888; font-size: 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.changePinBtn:hover { background: #e0f0ff; }
 
 .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 16px; }
 .emptyText { font-family: 'Playfair Display', serif; font-style: italic; color: #bbb; font-size: 1rem; }

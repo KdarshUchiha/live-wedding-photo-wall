@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { useAlbums } from '../hooks/useAlbums'
 import { usePhotos } from '../hooks/usePhotos'
-import { createAlbum, deleteAlbum, hashPin, verifyPin } from '../services/albumService'
+import { createAlbum, deleteAlbum, hashPin, verifyPin, updateAlbumPin } from '../services/albumService'
 import { DEFAULT_ALBUMS } from '../config/themes'
 import type { Album, Wedding } from '../types'
 import styles from './AlbumsPage.module.css'
@@ -17,7 +17,7 @@ interface Props {
 
 function AlbumCard({
   album, weddingId, isAdmin,
-  onOpen, onDelete, onUnlock
+  onOpen, onDelete, onUnlock, onChangePin
 }: {
   album: Album
   weddingId: string
@@ -25,6 +25,7 @@ function AlbumCard({
   onOpen: () => void
   onDelete: () => void
   onUnlock: () => void
+  onChangePin: () => void
 }) {
   const photos = usePhotos(weddingId, album.id)
   const count = photos.length
@@ -48,13 +49,24 @@ function AlbumCard({
         {album.isPrivate && <span className={styles.lockBadge}>🔒 Private</span>}
       </div>
       {isAdmin && (
-        <button
-          className={styles.deleteBtn}
-          onClick={(e) => { e.stopPropagation(); onDelete() }}
-          aria-label="Delete album"
-        >
-          🗑
-        </button>
+        <div className={styles.adminActions}>
+          {album.isPrivate && (
+            <button
+              className={styles.changePinBtn}
+              onClick={(e) => { e.stopPropagation(); onChangePin() }}
+              aria-label="Change PIN"
+            >
+              🔑
+            </button>
+          )}
+          <button
+            className={styles.deleteBtn}
+            onClick={(e) => { e.stopPropagation(); onDelete() }}
+            aria-label="Delete album"
+          >
+            🗑
+          </button>
+        </div>
       )}
     </motion.div>
   )
@@ -80,6 +92,11 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
   const [pinError, setPinError] = useState(false)
   const [unlocked, setUnlocked] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
+  const [changePinTarget, setChangePinTarget] = useState<Album | null>(null)
+  const [newPin, setNewPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
+  const [pinChangeError, setPinChangeError] = useState('')
+  const [pinChanging, setPinChanging] = useState(false)
 
   // Create album form
   const [form, setForm] = useState({ name: '', emoji: '📸', description: '', isPrivate: false, pin: '' })
@@ -130,9 +147,29 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
     }
   }
 
+  const handleChangePin = async () => {
+    if (!changePinTarget) return
+    if (newPin.length < 4) { setPinChangeError('PIN must be at least 4 digits'); return }
+    if (newPin !== confirmPin) { setPinChangeError('PINs do not match'); return }
+    setPinChanging(true)
+    setPinChangeError('')
+    try {
+      await updateAlbumPin(wedding.id, changePinTarget.id, newPin)
+      setChangePinTarget(null)
+      setNewPin('')
+      setConfirmPin('')
+    } catch (e) {
+      setPinChangeError(e instanceof Error ? e.message : 'Failed to update PIN')
+    } finally {
+      setPinChanging(false)
+    }
+  }
+
   const seedDefaultAlbums = async () => {
+    const defaultPinHash = await hashPin('0000')
     for (const a of DEFAULT_ALBUMS) {
-      await createAlbum(wedding.id, { ...a, pinHash: '', createdBy: user.uid })
+      const pinHash = a.isPrivate ? defaultPinHash : ''
+      await createAlbum(wedding.id, { ...a, pinHash, createdBy: user.uid })
     }
   }
 
@@ -193,6 +230,7 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
                 onOpen={() => handleAlbumClick(album)}
                 onDelete={() => deleteAlbum(wedding.id, album.id)}
                 onUnlock={() => { setPinTarget(album); setPinInput(''); setPinError(false) }}
+                onChangePin={() => { setChangePinTarget(album); setNewPin(''); setConfirmPin(''); setPinChangeError('') }}
               />
             ))}
           </AnimatePresence>
@@ -265,6 +303,46 @@ export default function AlbumsPage({ wedding, user, onOpen, onBack }: Props) {
                 <button className={styles.cancelBtn} onClick={() => setShowCreate(false)}>Cancel</button>
                 <button className={styles.createBtn} onClick={handleCreate} disabled={saving || !form.name}>
                   {saving ? 'Creating…' : 'Create'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Change PIN modal */}
+      <AnimatePresence>
+        {changePinTarget && (
+          <motion.div className={styles.overlay} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setChangePinTarget(null)}>
+            <motion.div className={styles.dialog}
+              initial={{ y: 40, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 40, opacity: 0 }}
+              transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}>
+              <div className={styles.lockIcon}>🔑</div>
+              <h3 className={styles.dialogTitle}>Change PIN</h3>
+              <p className={styles.dialogSub}>{changePinTarget.emoji} {changePinTarget.name}</p>
+              <input
+                className={`${styles.pinInput} ${pinChangeError ? styles.pinError : ''}`}
+                type="password" inputMode="numeric" maxLength={8}
+                placeholder="New PIN (min 4 digits)"
+                value={newPin}
+                onChange={(e) => { setNewPin(e.target.value); setPinChangeError('') }}
+                autoFocus
+              />
+              <input
+                className={`${styles.pinInput} ${pinChangeError ? styles.pinError : ''}`}
+                type="password" inputMode="numeric" maxLength={8}
+                placeholder="Confirm new PIN"
+                value={confirmPin}
+                onChange={(e) => { setConfirmPin(e.target.value); setPinChangeError('') }}
+                onKeyDown={(e) => e.key === 'Enter' && handleChangePin()}
+              />
+              {pinChangeError && <p className={styles.pinErrorMsg}>{pinChangeError}</p>}
+              <div className={styles.dialogActions}>
+                <button className={styles.cancelBtn} onClick={() => setChangePinTarget(null)}>Cancel</button>
+                <button className={styles.unlockBtn} onClick={handleChangePin} disabled={pinChanging}>
+                  {pinChanging ? 'Saving…' : 'Save PIN'}
                 </button>
               </div>
             </motion.div>

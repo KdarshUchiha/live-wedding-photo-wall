@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import type { Album } from '../types'
 
@@ -16,6 +16,11 @@ export async function createAlbum(
 
 export async function deleteAlbum(weddingId: string, albumId: string): Promise<void> {
   await deleteDoc(doc(db, 'weddings', weddingId, 'albums', albumId))
+}
+
+export async function updateAlbumPin(weddingId: string, albumId: string, newPin: string): Promise<void> {
+  const newHash = await hashPin(newPin)
+  await updateDoc(doc(db, 'weddings', weddingId, 'albums', albumId), { pinHash: newHash })
 }
 
 // Simple SHA-256 pin hash using Web Crypto
