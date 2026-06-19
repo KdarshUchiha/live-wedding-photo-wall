@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { usePhotos } from '../hooks/usePhotos'
 import { uploadPhoto, deletePhoto } from '../services/photoService'
+import { downloadAllPhotos } from '../utils/downloadPhotos'
 import PhotoThumbnail from '../components/PhotoThumbnail'
 import PhotoDetail from '../components/PhotoDetail'
 import Slideshow from '../components/Slideshow'
@@ -65,9 +66,14 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
           <p className={styles.subtitle}>{wedding.bride} &amp; {wedding.groom}</p>
         </div>
         {photos.length > 0 && (
-          <button className={styles.slideshowBtn} onClick={() => setShowSlideshow(true)}>
-            ▶ Slideshow
-          </button>
+          <>
+            <button className={styles.slideshowBtn} onClick={() => downloadAllPhotos(photos)}>
+              ⬇ Download
+            </button>
+            <button className={styles.slideshowBtn} onClick={() => setShowSlideshow(true)}>
+              ▶ Slideshow
+            </button>
+          </>
         )}
         {isAdmin && <span className={styles.adminBadge}>👑 Admin</span>}
       </header>
@@ -133,6 +139,8 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
         {selectedIndex !== null && (
           <PhotoDetail
             photos={photos} initialIndex={selectedIndex}
+            weddingId={wedding.id}
+            userId={user.uid}
             canDelete={(p) => isAdmin || user.uid === p.uploaderId}
             onDelete={handleDelete}
             onClose={() => setSelectedIndex(null)}

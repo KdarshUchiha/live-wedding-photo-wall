@@ -211,6 +211,21 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
             <span className={styles.actionIcon}>📅</span>
             <span className={styles.actionLabel}>Timeline</span>
           </motion.button>
+
+          <motion.button className={styles.actionBtn} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+            onClick={async () => {
+              const url = window.location.href
+              const text = `You're invited to ${wedding.bride} & ${wedding.groom}'s wedding!`
+              if (navigator.share) {
+                await navigator.share({ title: 'Wedding Invitation', text, url })
+              } else {
+                await navigator.clipboard.writeText(url)
+                alert('Link copied to clipboard!')
+              }
+            }}>
+            <span className={styles.actionIcon}>📲</span>
+            <span className={styles.actionLabel}>Share</span>
+          </motion.button>
         </div>
 
         {wedding.musicUrl && (

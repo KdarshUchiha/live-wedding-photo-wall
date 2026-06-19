@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { useWeddings } from '../hooks/useWeddings'
+import { useDarkMode } from '../hooks/useDarkMode'
 import { createWedding, deleteWedding } from '../services/weddingService'
 import EnvelopeCard from '../components/EnvelopeCard'
 import { RELIGIOUS_THEMES } from '../config/themes'
@@ -27,6 +28,7 @@ interface Props {
 
 export default function HomePage({ user, onOpen }: Props) {
   const weddings = useWeddings()
+  const { dark, toggle } = useDarkMode()
   const [tab, setTab] = useState<Tab>('live')
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Wedding | null>(null)
@@ -79,6 +81,11 @@ export default function HomePage({ user, onOpen }: Props) {
 
   return (
     <div className={styles.page}>
+      {/* Dark mode toggle */}
+      <button className={styles.themeToggle} onClick={toggle} aria-label="Toggle dark mode">
+        {dark ? '☀️' : '🌙'}
+      </button>
+
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.appTitle}>Wedding Wall</h1>

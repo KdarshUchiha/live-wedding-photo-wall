@@ -24,3 +24,14 @@ body {
 
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 img { display: block; max-width: 100%; }
+
+[data-theme="dark"] {
+  --burgundy: #c44040;
+  --cream: #1a1a1e;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background: #121214;
+  color: #e8e8e8;
+}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { useGuestbook } from '../hooks/useGuestbook'
+import { useGuestName } from '../hooks/useGuestName'
 import { addGuestbookEntry, deleteGuestbookEntry } from '../services/guestbookService'
 import type { Wedding } from '../types'
 import styles from './GuestbookPage.module.css'
@@ -12,8 +13,9 @@ const WISHES = ['🥂','💍','❤️','🎊','🌸','✨','💐','🕊️','�
 
 export default function GuestbookPage({ wedding, user, onBack }: Props) {
   const entries = useGuestbook(wedding.id)
+  const { name: guestName, saveName } = useGuestName()
   const isAdmin = user.uid === wedding.createdBy
-  const [name, setName] = useState('')
+  const [name, setName] = useState(guestName)
   const [message, setMessage] = useState('')
   const [emoji, setEmoji] = useState('❤️')
   const [saving, setSaving] = useState(false)
@@ -22,8 +24,8 @@ export default function GuestbookPage({ wedding, user, onBack }: Props) {
     if (!name.trim() || !message.trim()) return
     setSaving(true)
     try {
+      saveName(name.trim())
       await addGuestbookEntry(wedding.id, `${emoji} ${name.trim()}`, message.trim(), user.uid)
-      setName('')
       setMessage('')
     } finally {
       setSaving(false)

@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useReactions, REACTIONS } from '../hooks/useReactions'
 import type { Photo } from '../types'
 import styles from './PhotoDetail.module.css'
 
 interface Props {
   photos: Photo[]
   initialIndex: number
+  weddingId: string
+  userId: string
   canDelete: (photo: Photo) => boolean
   onDelete: (photo: Photo) => void
   onClose: () => void
@@ -15,6 +18,8 @@ interface Props {
 export default function PhotoDetail({
   photos,
   initialIndex,
+  weddingId,
+  userId,
   canDelete,
   onDelete,
   onClose,
@@ -24,6 +29,7 @@ export default function PhotoDetail({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const current = photos[index]
+  const { counts, myReaction, toggle } = useReactions(weddingId, current?.id || '', userId)
 
   const go = useCallback(
     (dir: -1 | 1) => {
@@ -101,6 +107,20 @@ export default function PhotoDetail({
           </svg>
         </button>
       )}
+
+      {/* Reactions */}
+      <div className={styles.reactions} onClick={(e) => e.stopPropagation()}>
+        {REACTIONS.map((emoji) => (
+          <button
+            key={emoji}
+            className={`${styles.reactionBtn} ${myReaction === emoji ? styles.reactionBtnActive : ''}`}
+            onClick={() => toggle(emoji)}
+          >
+            {emoji}
+            {counts[emoji] ? <span className={styles.reactionCount}>{counts[emoji]}</span> : null}
+          </button>
+        ))}
+      </div>
 
       {/* Delete button */}
       {canDelete(current) && (
