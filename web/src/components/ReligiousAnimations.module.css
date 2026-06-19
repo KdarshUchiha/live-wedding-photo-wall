@@ -23,13 +23,14 @@
 
 .coupleWrap {
   position: absolute;
-  bottom: 0;
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(420px, 95vw);
+  width: min(680px, 100vw);
   pointer-events: none;
   z-index: 2;
-  opacity: 0.22;
+  opacity: 0.55;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
 }
 
 .coupleSvg {
