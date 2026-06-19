@@ -75,11 +75,27 @@
 /* Polaroid thumbnails */
 .polaroid {
   position: absolute;
-  width: 80px;
+  width: 110px;
   background: white;
-  padding: 4px 4px 16px;
-  box-shadow: 2px 4px 12px rgba(0,0,0,0.25);
+  padding: 5px 5px 20px;
+  box-shadow: 2px 4px 14px rgba(0,0,0,0.3);
   z-index: 3;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.polaroid:hover {
+  box-shadow: 4px 8px 24px rgba(0,0,0,0.4);
+  animation: polaroidShake 0.4s ease-in-out;
+}
+
+@keyframes polaroidShake {
+  0%   { transform: rotate(var(--r, 0deg)) translate(0, 0); }
+  20%  { transform: rotate(var(--r, 0deg)) translate(-3px, 2px) rotate(-2deg); }
+  40%  { transform: rotate(var(--r, 0deg)) translate(3px, -2px) rotate(2deg); }
+  60%  { transform: rotate(var(--r, 0deg)) translate(-2px, 1px) rotate(-1deg); }
+  80%  { transform: rotate(var(--r, 0deg)) translate(2px, -1px) rotate(1deg); }
+  100% { transform: rotate(var(--r, 0deg)) translate(0, 0); }
 }
 
 .polaroidImg {

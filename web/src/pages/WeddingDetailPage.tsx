@@ -134,6 +134,7 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
           return (
             <motion.div key={photo.id} className={styles.polaroid} style={pos as React.CSSProperties}
               initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.12, rotate: [0, -3, 3, -2, 2, 0], transition: { duration: 0.5 } }}
               transition={{ delay: i * 0.1, type: 'spring', damping: 15 }}>
               <img src={photo.url} alt="" className={styles.polaroidImg} />
             </motion.div>
