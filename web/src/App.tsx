@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from './hooks/useAuth'
 import HomePage from './pages/HomePage'
 import WeddingDetailPage from './pages/WeddingDetailPage'
@@ -7,13 +7,41 @@ import PhotoGalleryPage from './pages/PhotoGalleryPage'
 import VideoGalleryPage from './pages/VideoGalleryPage'
 import InvitePage from './pages/InvitePage'
 import GuestbookPage from './pages/GuestbookPage'
+import { getWedding } from './services/weddingService'
 import type { Page } from './types'
 
 export default function App() {
   const user = useAuth()
   const [page, setPage] = useState<Page>({ name: 'home' })
+  const [resolvingLink, setResolvingLink] = useState(true)
 
-  if (!user) {
+  // Deep-link landing: a guest who scans the event QR opens `?w=<weddingId>`
+  // and should jump straight into that event instead of the full home list.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('w')
+    if (!id) {
+      setResolvingLink(false)
+      return
+    }
+    let cancelled = false
+    getWedding(id)
+      .then((w) => { if (!cancelled && w) setPage({ name: 'detail', wedding: w }) })
+      .finally(() => { if (!cancelled) setResolvingLink(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  // Keep the URL in sync with the open event so it's always shareable. Going
+  // back to home clears the param; opening/navigating within an event sets it.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const weddingId = 'wedding' in page ? page.wedding.id : null
+    if (weddingId) params.set('w', weddingId)
+    else params.delete('w')
+    const qs = params.toString()
+    window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname)
+  }, [page])
+
+  if (!user || resolvingLink) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: 12 }}>
         <p style={{ fontFamily: '"Great Vibes", cursive', color: '#8B1A1A', fontSize: '3rem' }}>Wedding Wall</p>

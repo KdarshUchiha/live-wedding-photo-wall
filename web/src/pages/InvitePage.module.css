@@ -345,3 +345,42 @@
   color: #888;
   margin-top: 12px;
 }
+
+.shareRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.shareBtn,
+.copyBtn {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.shareBtn {
+  background: #8B1A1A;
+  color: #fff;
+  border: 1px solid #8B1A1A;
+}
+
+.shareBtn:hover {
+  background: #701414;
+}
+
+.copyBtn {
+  background: transparent;
+  color: #8B1A1A;
+  border: 1px solid rgba(139,26,26,0.4);
+}
+
+.copyBtn:hover {
+  background: rgba(139,26,26,0.06);
+}

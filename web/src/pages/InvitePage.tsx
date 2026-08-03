@@ -73,7 +73,34 @@ export default function InvitePage({ wedding, user, onBack }: Props) {
     }
   }
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent('https://kdarshuchiha.github.io/live-wedding-photo-wall/')}`
+  // Per-event deep link: scanning the QR drops guests straight into THIS
+  // wedding (App reads `?w=<id>` on load), not the full home list.
+  const shareUrl = `https://kdarshuchiha.github.io/live-wedding-photo-wall/?w=${wedding.id}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(shareUrl)}`
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // clipboard unavailable — ignore
+    }
+  }
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${wedding.bride} & ${wedding.groom}'s Wedding`,
+      text: `You're invited! Share photos & RSVP for ${wedding.bride} & ${wedding.groom}'s wedding 💍`,
+      url: shareUrl,
+    }
+    if (navigator.share) {
+      try { await navigator.share(shareData) } catch { /* user cancelled */ }
+    } else {
+      handleCopyLink()
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -275,11 +302,31 @@ export default function InvitePage({ wedding, user, onBack }: Props) {
         <img
           className={styles.qrCode}
           src={qrUrl}
-          alt="QR code to open on phone"
+          alt="QR code to open this wedding on your phone"
           width={160}
           height={160}
         />
-        <p className={styles.qrText}>Scan to open on your phone</p>
+        <p className={styles.qrText}>Scan to join {wedding.bride} &amp; {wedding.groom}'s wall</p>
+        <div className={styles.shareRow}>
+          <motion.button
+            type="button"
+            className={styles.shareBtn}
+            onClick={handleShare}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+          >
+            📤 Share invite
+          </motion.button>
+          <motion.button
+            type="button"
+            className={styles.copyBtn}
+            onClick={handleCopyLink}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+          >
+            {copied ? '✓ Copied!' : '🔗 Copy link'}
+          </motion.button>
+        </div>
       </motion.div>
     </div>
   )

@@ -49,6 +49,10 @@ captures/
 *.swp
 *.swo
 
+# Web / Node
+node_modules/
+dist/
+
 # Environment / secrets
 .env
 *.env.local
