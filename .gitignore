@@ -57,3 +57,8 @@ dist/
 .env
 *.env.local
 secrets/
+
+# Firebase emulator logs
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

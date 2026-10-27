@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { usePhotos } from '../hooks/usePhotos'
+import { useWedding } from '../hooks/useWedding'
 import { uploadPhoto, deletePhoto } from '../services/photoService'
 import { downloadAllPhotos } from '../utils/downloadPhotos'
 import PhotoThumbnail from '../components/PhotoThumbnail'
@@ -20,12 +21,13 @@ interface Props {
   onBack: () => void
 }
 
-export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack }: Props) {
-  const photos = usePhotos(wedding.id, album.id || undefined)
-  // The photo cap is per event (all albums), so count against the unfiltered list.
-  const allPhotos = usePhotos(wedding.id)
+export default function PhotoGalleryPage({ wedding: initialWedding, album, user, isAdmin, onBack }: Props) {
+  const photos = usePhotos(initialWedding.id, album.id || undefined)
+  // Live wedding doc: the per-event photo counter (enforced by firestore.rules) and plan upgrades.
+  const wedding = useWedding(initialWedding)
+  const photoCount = wedding.photoCount ?? 0
   const plan = planOf(wedding)
-  const limitReached = isPhotoLimitReached(wedding, allPhotos.length)
+  const limitReached = isPhotoLimitReached(wedding, photoCount)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null)
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' })
@@ -36,14 +38,14 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
 
   const handleFiles = async (files: FileList | null) => {
     if (!files?.length) return
-    const remaining = photosRemaining(wedding, allPhotos.length)
+    const remaining = photosRemaining(wedding, photoCount)
     if (remaining === 0) { setShowUpgrade(true); return }
     const all = Array.from(files)
     const arr = all.slice(0, remaining)
     setUploadState({ status: 'uploading', progress: 0 })
     try {
       for (let i = 0; i < arr.length; i++) {
-        await uploadPhoto(arr[i], user.uid, wedding.id, album.id)
+        await uploadPhoto(arr[i], user.uid, wedding.id, album.id, plan.id === 'pro')
         setUploadState({ status: 'uploading', progress: (i + 1) / arr.length })
       }
       setUploadState({ status: 'done' })
@@ -52,7 +54,9 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Upload failed'
       setUploadState({ status: 'failed', message: msg })
-      setError(msg)
+      // Another guest may have filled the last free slot first — the server rejects the write.
+      if (plan.photoLimit !== null && (e as { code?: string }).code === 'permission-denied') setShowUpgrade(true)
+      else setError(msg)
     }
   }
 
@@ -81,7 +85,7 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
 
   const handleDelete = async (photo: Photo) => {
     try {
-      await deletePhoto(photo.id, photo.url, wedding.id)
+      await deletePhoto(photo.id, wedding.id, photoCount)
       if (selectedIndex !== null && selectedIndex >= photos.length - 1)
         setSelectedIndex(photos.length > 1 ? photos.length - 2 : null)
     } catch (e) { setError(e instanceof Error ? e.message : 'Delete failed') }
@@ -101,7 +105,7 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
           <p className={styles.subtitle}>
             {wedding.bride} &amp; {wedding.groom}
             {plan.photoLimit !== null && (
-              <> · {allPhotos.length}/{plan.photoLimit} photos ·{' '}
+              <> · {photoCount}/{plan.photoLimit} photos ·{' '}
                 <button className={styles.upgradeLink} onClick={() => setShowUpgrade(true)}>Upgrade</button>
               </>
             )}
@@ -196,7 +200,7 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
       )}
 
       {showUpgrade && (
-        <UpgradeModal photoCount={allPhotos.length} onUpgrade={handleUpgrade} onClose={() => setShowUpgrade(false)} />
+        <UpgradeModal photoCount={photoCount} onUpgrade={handleUpgrade} onClose={() => setShowUpgrade(false)} />
       )}
 
       {error && (

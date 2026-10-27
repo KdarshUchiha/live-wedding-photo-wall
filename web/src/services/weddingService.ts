@@ -3,10 +3,11 @@ import { db } from '../firebase'
 import type { Wedding } from '../types'
 
 export async function createWedding(
-  data: Omit<Wedding, 'id' | 'createdAt'>,
+  data: Omit<Wedding, 'id' | 'createdAt' | 'plan' | 'photoCount' | 'lastPhotoId'>,
 ): Promise<string> {
   const ref = await addDoc(collection(db, 'weddings'), {
     ...data,
+    photoCount: 0,
     createdAt: serverTimestamp(),
   })
   return ref.id

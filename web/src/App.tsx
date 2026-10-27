@@ -8,6 +8,7 @@ import VideoGalleryPage from './pages/VideoGalleryPage'
 import InvitePage from './pages/InvitePage'
 import GuestbookPage from './pages/GuestbookPage'
 import { getWedding } from './services/weddingService'
+import { rememberJoinedWedding } from './utils/joinedWeddings'
 import type { Page } from './types'
 
 export default function App() {
@@ -25,7 +26,11 @@ export default function App() {
     }
     let cancelled = false
     getWedding(id)
-      .then((w) => { if (!cancelled && w) setPage({ name: 'detail', wedding: w }) })
+      .then((w) => {
+        if (cancelled || !w) return
+        rememberJoinedWedding(w.id)
+        setPage({ name: 'detail', wedding: w })
+      })
       .finally(() => { if (!cancelled) setResolvingLink(false) })
     return () => { cancelled = true }
   }, [])

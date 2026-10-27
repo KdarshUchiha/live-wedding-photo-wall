@@ -28,7 +28,9 @@ export interface Wedding {
   musicUrl?: string
   createdAt: number
   createdBy: string
-  plan?: 'free' | 'pro'   // absent = free
+  plan?: 'free' | 'pro'   // absent = free; server-owned, set only by the payment backend
+  photoCount?: number     // photos on the wall, kept in sync by firestore.rules (absent on legacy events)
+  lastPhotoId?: string    // photo created/deleted in the same batch as the last counter change
 }
 
 export interface Album {
@@ -49,6 +51,7 @@ export interface Photo {
   uploaderId: string
   timestamp: number
   albumId: string
+  expireAt?: unknown      // Firestore Timestamp on free-tier photos; TTL policy deletes them
 }
 
 export interface Video {
