@@ -1,4 +1,4 @@
-import { Timestamp, collection, doc, increment, serverTimestamp, writeBatch } from 'firebase/firestore'
+import { Timestamp, collection, doc, getDocs, increment, query, serverTimestamp, where, writeBatch } from 'firebase/firestore'
 import { db } from '../firebase'
 import { PLANS } from '../config/plans'
 
@@ -29,6 +29,26 @@ export async function deletePhoto(photoId: string, weddingId: string, currentCou
   if (currentCount > 0)
     batch.update(doc(db, 'weddings', weddingId), { photoCount: increment(-1), lastPhotoId: photoId })
   await batch.commit()
+}
+
+/**
+ * Deletes free-tier photos past their expireAt and frees their slots. Runs from the couple's
+ * app (the rules let the creator delete any photo) because Firestore TTL needs billing enabled.
+ * Every photo with expireAt was counted on upload, so each delete decrements the counter.
+ * One photo per batch: the counter rule ties each change to a single lastPhotoId.
+ */
+export async function deleteExpiredPhotos(weddingId: string): Promise<number> {
+  const expired = await getDocs(query(
+    collection(db, 'weddings', weddingId, 'photos'),
+    where('expireAt', '<=', Timestamp.now()),
+  ))
+  for (const photo of expired.docs) {
+    const batch = writeBatch(db)
+    batch.delete(photo.ref)
+    batch.update(doc(db, 'weddings', weddingId), { photoCount: increment(-1), lastPhotoId: photo.id })
+    await batch.commit()
+  }
+  return expired.size
 }
 
 async function compressToDataUrl(file: File, maxDim = 1200, quality = 0.72): Promise<string> {

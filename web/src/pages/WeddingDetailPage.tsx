@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { User } from 'firebase/auth'
 import { usePhotos } from '../hooks/usePhotos'
+import { deleteExpiredPhotos } from '../services/photoService'
+import { planOf } from '../config/plans'
 import { RELIGIOUS_THEMES } from '../config/themes'
 import ReligiousAnimations from '../components/ReligiousAnimations'
 import type { Wedding } from '../types'
@@ -82,6 +84,14 @@ export default function WeddingDetailPage({ wedding, user, onBack, onAlbums, onV
   const photos = usePhotos(wedding.id)
   const { day, month, year } = formatDate(wedding.date)
   const isAdmin = user.uid === wedding.createdBy
+  const cleanupExpired = isAdmin && planOf(wedding).retentionDays !== null
+
+  // Free-tier retention: the couple's visit purges expired photos (stand-in for Firestore TTL).
+  useEffect(() => {
+    if (!cleanupExpired) return
+    deleteExpiredPhotos(wedding.id).catch((e) => console.error('[retention] cleanup failed:', e))
+  }, [wedding.id, cleanupExpired])
+
   const theme = RELIGIOUS_THEMES[wedding.religiousTheme || 'other']
   const bgColor = darkenHex(wedding.themeColor || '#8B1A1A', 0.28)
   const previewPhotos = photos.slice(0, 5)
