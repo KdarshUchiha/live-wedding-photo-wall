@@ -116,7 +116,7 @@ describe('server-side photo cap', () => {
   })
 })
 
-describe('retention (TTL expireAt)', () => {
+describe('retention (expireAt on upload)', () => {
   test('free photos without expireAt are rejected', async () => {
     await seedWedding()
     const db = guest()
@@ -172,5 +172,46 @@ describe('reactions', () => {
     await seedWedding()
     await assertSucceeds(setDoc(doc(guest(), 'weddings/w1/photos/p1/reactions/guest'), { emoji: '❤️' }))
     await assertFails(setDoc(doc(guest(), 'weddings/w1/photos/p1/reactions/other'), { emoji: '❤️' }))
+  })
+})
+
+describe('free-tier cleanup (no TTL)', () => {
+  async function seedExpired() {
+    await seedWedding({ photoCount: 3 })
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore()
+      const past = Timestamp.fromMillis(Date.now() - DAY)
+      const future = Timestamp.fromMillis(Date.now() + 10 * DAY)
+      await setDoc(doc(db, 'weddings/w1/photos/old1'), { url: 'x', uploaderId: 'guest', albumId: '', expireAt: past })
+      await setDoc(doc(db, 'weddings/w1/photos/old2'), { url: 'x', uploaderId: 'guest2', albumId: '', expireAt: past })
+      await setDoc(doc(db, 'weddings/w1/photos/fresh'), { url: 'x', uploaderId: 'guest', albumId: '', expireAt: future })
+    })
+  }
+  // Mirrors deleteExpiredPhotos() in web/src/services/photoService.ts
+  async function cleanup(db) {
+    const expired = await getDocs(query(collection(db, 'weddings/w1/photos'), where('expireAt', '<=', Timestamp.now())))
+    for (const photo of expired.docs) {
+      const batch = writeBatch(db)
+      batch.delete(photo.ref)
+      batch.update(doc(db, 'weddings/w1'), { photoCount: increment(-1), lastPhotoId: photo.id })
+      await batch.commit()
+    }
+    return expired.size
+  }
+  test('couple removes only expired photos and frees their slots', async () => {
+    await seedExpired()
+    const removed = await assertSucceeds(cleanup(couple()))
+    if (removed !== 2) throw new Error(`expected 2 removed, got ${removed}`)
+    let count, left
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore()
+      count = (await getDoc(doc(db, 'weddings/w1'))).data().photoCount
+      left = (await getDocs(collection(db, 'weddings/w1/photos'))).docs.map((d) => d.id)
+    })
+    if (count !== 1 || left.join() !== 'fresh') throw new Error(`count=${count} left=${left}`)
+  })
+  test('a guest cannot purge other guests’ photos', async () => {
+    await seedExpired()
+    await assertFails(cleanup(guest('stranger')))
   })
 })

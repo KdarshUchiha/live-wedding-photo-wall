@@ -1,11 +1,4 @@
 {
   "indexes": [],
-  "fieldOverrides": [
-    {
-      "collectionGroup": "photos",
-      "fieldPath": "expireAt",
-      "ttl": true,
-      "indexes": []
-    }
-  ]
+  "fieldOverrides": []
 }

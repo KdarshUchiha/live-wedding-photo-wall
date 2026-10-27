@@ -14,7 +14,11 @@ export function usePhotos(weddingId: string, albumId?: string) {
     const q = query(collection(db, 'weddings', weddingId, 'photos'), ...constraints)
     return onSnapshot(q,
       (snap) => {
-        setPhotos(snap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Photo, 'id'>) })))
+        const now = Date.now()
+        setPhotos(snap.docs
+          .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Photo, 'id'>) }))
+          // Expired free-tier photos disappear for guests immediately, before the couple's cleanup runs.
+          .filter((p) => !p.expireAt || p.expireAt.toMillis() > now))
       },
       (error) => {
         console.error('[usePhotos] Firestore error:', error.message)

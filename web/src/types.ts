@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore'
+
 export type ReligiousTheme =
   | 'christian'
   | 'hindu'
@@ -51,7 +53,7 @@ export interface Photo {
   uploaderId: string
   timestamp: number
   albumId: string
-  expireAt?: unknown      // Firestore Timestamp on free-tier photos; TTL policy deletes them
+  expireAt?: Timestamp    // free-tier photos only; hidden once past, deleted by the couple's app
 }
 
 export interface Video {

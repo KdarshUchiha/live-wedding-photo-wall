@@ -80,13 +80,13 @@ Guests can upload photos during the event, which appear instantly in a shared an
 
 ## Firestore rules, photo cap & retention
 
-`firestore.rules` enforces event privacy (events open by link/QR only — nobody can list other couples' weddings), the free-tier 50-photo cap (server-side counter on the wedding doc), and that `plan` can only be set by the payment backend. Free-tier photos carry an `expireAt` that a Firestore TTL policy (`firestore.indexes.json`) deletes after ~30 days.
+`firestore.rules` enforces event privacy (events open by link/QR only — nobody can list other couples' weddings), the free-tier 50-photo cap (server-side counter on the wedding doc), and that `plan` can only be set by the payment backend. Free-tier photos carry an `expireAt` (~30 days): guests stop seeing them once it passes, and the couple's app deletes them (freeing the slots) when they next open the event. Firestore TTL would do this server-side but requires billing; if billing is enabled later, add a TTL policy on `photos.expireAt`.
 
 ```bash
 # Test the rules against the local emulator (needs Java 11+)
 cd firestore-tests && npm install && npm test
 
-# Deploy rules + TTL policy to the Firebase project
+# Deploy rules to the Firebase project
 npx firebase-tools login
 npx firebase-tools deploy --only firestore
 ```
