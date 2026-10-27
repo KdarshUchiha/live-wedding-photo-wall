@@ -28,6 +28,7 @@ export interface Wedding {
   musicUrl?: string
   createdAt: number
   createdBy: string
+  plan?: 'free' | 'pro'   // absent = free
 }
 
 export interface Album {

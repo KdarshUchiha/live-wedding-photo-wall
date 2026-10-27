@@ -7,6 +7,8 @@ import { downloadAllPhotos } from '../utils/downloadPhotos'
 import PhotoThumbnail from '../components/PhotoThumbnail'
 import PhotoDetail from '../components/PhotoDetail'
 import Slideshow from '../components/Slideshow'
+import UpgradeModal from '../components/UpgradeModal'
+import { isPhotoLimitReached, planOf, photosRemaining } from '../config/plans'
 import type { Album, Photo, UploadState, Wedding } from '../types'
 import styles from './PhotoGalleryPage.module.css'
 
@@ -20,6 +22,12 @@ interface Props {
 
 export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack }: Props) {
   const photos = usePhotos(wedding.id, album.id || undefined)
+  // The photo cap is per event (all albums), so count against the unfiltered list.
+  const allPhotos = usePhotos(wedding.id)
+  const plan = planOf(wedding)
+  const limitReached = isPhotoLimitReached(wedding, allPhotos.length)
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null)
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' })
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [showSlideshow, setShowSlideshow] = useState(false)
@@ -28,7 +36,10 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
 
   const handleFiles = async (files: FileList | null) => {
     if (!files?.length) return
-    const arr = Array.from(files)
+    const remaining = photosRemaining(wedding, allPhotos.length)
+    if (remaining === 0) { setShowUpgrade(true); return }
+    const all = Array.from(files)
+    const arr = all.slice(0, remaining)
     setUploadState({ status: 'uploading', progress: 0 })
     try {
       for (let i = 0; i < arr.length; i++) {
@@ -37,11 +48,35 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
       }
       setUploadState({ status: 'done' })
       setTimeout(() => setUploadState({ status: 'idle' }), 2000)
+      if (arr.length < all.length) setShowUpgrade(true)
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Upload failed'
       setUploadState({ status: 'failed', message: msg })
       setError(msg)
     }
+  }
+
+  const handleDownload = async () => {
+    if (downloadProgress !== null) return
+    setDownloadProgress(0)
+    try {
+      await downloadAllPhotos(photos, {
+        albumName: `${wedding.bride}-${wedding.groom}-${album.name}`,
+        onProgress: setDownloadProgress,
+        watermark: plan.watermark,
+        watermarkText: `${wedding.bride} & ${wedding.groom}`,
+      })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Download failed')
+    } finally {
+      setDownloadProgress(null)
+    }
+  }
+
+  // TODO: wire Stripe Checkout / RevenueCat, then set wedding.plan = 'pro' on success.
+  const handleUpgrade = () => {
+    setShowUpgrade(false)
+    setError('Payments are coming soon — Event Pass checkout is not live yet.')
   }
 
   const handleDelete = async (photo: Photo) => {
@@ -63,12 +98,19 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
         </button>
         <div>
           <h1 className={styles.title}>{album.emoji} {album.name}</h1>
-          <p className={styles.subtitle}>{wedding.bride} &amp; {wedding.groom}</p>
+          <p className={styles.subtitle}>
+            {wedding.bride} &amp; {wedding.groom}
+            {plan.photoLimit !== null && (
+              <> · {allPhotos.length}/{plan.photoLimit} photos ·{' '}
+                <button className={styles.upgradeLink} onClick={() => setShowUpgrade(true)}>Upgrade</button>
+              </>
+            )}
+          </p>
         </div>
         {photos.length > 0 && (
           <>
-            <button className={styles.slideshowBtn} onClick={() => downloadAllPhotos(photos)}>
-              ⬇ Download
+            <button className={styles.slideshowBtn} onClick={handleDownload} disabled={downloadProgress !== null}>
+              {downloadProgress === null ? '⬇ Download' : `Zipping ${Math.round(downloadProgress * 100)}%`}
             </button>
             <button className={styles.slideshowBtn} onClick={() => setShowSlideshow(true)}>
               ▶ Slideshow
@@ -121,12 +163,13 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
 
       {/* FAB */}
       <div className={styles.fabWrap}>
-        <button className={styles.fab} onClick={() => fileInputRef.current?.click()}>
+        <button className={styles.fab}
+          onClick={() => (limitReached ? setShowUpgrade(true) : fileInputRef.current?.click())}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
             <circle cx="12" cy="13" r="4"/>
           </svg>
-          Add photos
+          {limitReached ? 'Photo limit reached' : 'Add photos'}
         </button>
         <input ref={fileInputRef} type="file" accept="image/*" multiple
           style={{ display: 'none' }}
@@ -150,6 +193,10 @@ export default function PhotoGalleryPage({ wedding, album, user, isAdmin, onBack
 
       {showSlideshow && photos.length > 0 && (
         <Slideshow photos={photos} onClose={() => setShowSlideshow(false)} />
+      )}
+
+      {showUpgrade && (
+        <UpgradeModal photoCount={allPhotos.length} onUpgrade={handleUpgrade} onClose={() => setShowUpgrade(false)} />
       )}
 
       {error && (
