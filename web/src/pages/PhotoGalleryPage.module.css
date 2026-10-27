@@ -32,6 +32,7 @@
 
 .title { font-family: 'Great Vibes', cursive; font-size: 2rem; color: #8B1A1A; line-height: 1; }
 .subtitle { font-size: 0.78rem; color: #aaa; font-family: 'Playfair Display', serif; font-style: italic; }
+.upgradeLink { color: #8B1A1A; font-weight: 600; font-style: normal; text-decoration: underline; font-size: inherit; }
 
 .progressBar {
   position: fixed; top: 0; left: 0; right: 0; height: 3px;

@@ -1,0 +1,46 @@
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 500; padding: 16px;
+}
+
+.modal {
+  position: relative; background: white; border-radius: 20px; padding: 28px 24px 24px;
+  max-width: 520px; width: 100%; box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+}
+
+.close {
+  position: absolute; top: 12px; right: 14px; width: 32px; height: 32px; border-radius: 50%;
+  background: #f5f1ec; color: #555; font-size: 1.2rem; line-height: 1;
+}
+
+.title { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: #8B1A1A; text-align: center; }
+.subtitle { font-size: 0.85rem; color: #888; text-align: center; margin: 6px 0 20px; }
+
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+@media (max-width: 480px) { .plans { grid-template-columns: 1fr; } }
+
+.plan {
+  position: relative; border: 1px solid #f0ece6; border-radius: 14px; padding: 18px 16px;
+  background: #faf8f5;
+}
+.plan h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #333; }
+.plan ul { list-style: none; padding: 0; margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.plan li { font-size: 0.8rem; color: #666; }
+.plan li::before { content: '✓ '; color: #8B1A1A; font-weight: 700; }
+
+.pro { border: 2px solid #8B1A1A; background: white; }
+
+.badge {
+  position: absolute; top: -10px; right: 12px; padding: 2px 10px; border-radius: 100px;
+  background: #8B1A1A; color: white; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.04em;
+}
+
+.price { font-size: 1.6rem; font-weight: 700; color: #8B1A1A; margin-top: 4px; }
+.price span { font-size: 0.75rem; font-weight: 500; color: #aaa; }
+
+.cta {
+  width: 100%; padding: 14px; border-radius: 100px;
+  background: rgba(139,26,26,0.9); color: white; font-weight: 600; font-size: 0.95rem;
+  box-shadow: 0 4px 24px rgba(139,26,26,0.35); transition: transform 0.15s, background 0.15s;
+}
+.cta:hover { transform: translateY(-2px); background: rgba(139,26,26,1); }
