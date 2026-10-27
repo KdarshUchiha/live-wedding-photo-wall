@@ -1,54 +1,108 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function weddingPath(weddingId) { return /databases/$(database)/documents/weddings/$(weddingId); }
+    function photoPath(weddingId, photoId) { return /databases/$(database)/documents/weddings/$(weddingId)/photos/$(photoId); }
+    function isCreator(weddingId) { return signedIn() && get(weddingPath(weddingId)).data.createdBy == request.auth.uid; }
+
+    // Keep in sync with web/src/config/plans.ts
+    function freePhotoLimit() { return 50; }
+    function isPro(data) { return data.get('plan', 'free') == 'pro'; }
+
     match /weddings/{weddingId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.createdBy == request.auth.uid;
+      // An event is reachable by anyone holding its id (the QR / ?w= link acts as the invite),
+      // but only the couple can list their own events — nobody can enumerate other weddings.
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.createdBy == request.auth.uid;
+
+      // `plan` is server-owned (set by the payment backend only) and the photo counter must start at 0.
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && !request.resource.data.keys().hasAny(['plan', 'lastPhotoId'])
+        && request.resource.data.photoCount == 0;
+
+      // The only client-side update is the photo counter, and only in the same batch as the
+      // photo create/delete named by lastPhotoId — so the count always matches the wall.
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['photoCount', 'lastPhotoId'])
+        && (
+          (request.resource.data.photoCount == resource.data.get('photoCount', 0) + 1
+            && !exists(photoPath(weddingId, request.resource.data.lastPhotoId))
+            && existsAfter(photoPath(weddingId, request.resource.data.lastPhotoId)))
+          ||
+          (request.resource.data.photoCount == resource.data.get('photoCount', 0) - 1
+            && request.resource.data.photoCount >= 0
+            && exists(photoPath(weddingId, request.resource.data.lastPhotoId))
+            && !existsAfter(photoPath(weddingId, request.resource.data.lastPhotoId)))
+        );
+
       // Only the couple (wedding creator) can delete the entire wedding
-      allow delete: if request.auth != null && resource.data.createdBy == request.auth.uid;
+      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
 
       match /photos/{photoId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null;
-        // Photo owner OR wedding creator (couple) can delete
-        allow delete: if request.auth != null && (
-          resource.data.uploaderId == request.auth.uid ||
-          get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid
-        );
+        allow read: if signedIn();
+
+        // Must bump the wedding counter in the same batch; free events are capped and their
+        // photos carry an expireAt (~30 days) that the Firestore TTL policy deletes.
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(['url', 'uploaderId', 'albumId', 'timestamp', 'expireAt'])
+          && request.resource.data.uploaderId == request.auth.uid
+          && request.resource.data.url is string
+          && request.resource.data.timestamp == request.time
+          && getAfter(weddingPath(weddingId)).data.photoCount == get(weddingPath(weddingId)).data.get('photoCount', 0) + 1
+          && getAfter(weddingPath(weddingId)).data.lastPhotoId == photoId
+          && (
+            isPro(get(weddingPath(weddingId)).data)
+              ? !('expireAt' in request.resource.data)
+              : (getAfter(weddingPath(weddingId)).data.photoCount <= freePhotoLimit()
+                && request.resource.data.expireAt is timestamp
+                && request.resource.data.expireAt >= request.time + duration.value(28, 'd')
+                && request.resource.data.expireAt <= request.time + duration.value(30, 'd'))
+          );
+
+        // Photo owner OR wedding creator (couple) can delete. The counter is decremented in the
+        // same batch, except for legacy events whose counter is already 0.
+        allow delete: if signedIn()
+          && (resource.data.uploaderId == request.auth.uid || isCreator(weddingId))
+          && (
+            get(weddingPath(weddingId)).data.get('photoCount', 0) == 0
+            || getAfter(weddingPath(weddingId)).data.photoCount == get(weddingPath(weddingId)).data.photoCount - 1
+          );
+
+        // One reaction per guest per photo, keyed by their uid
+        match /reactions/{userId} {
+          allow read: if signedIn();
+          allow create, update: if signedIn() && userId == request.auth.uid
+            && request.resource.data.keys().hasOnly(['emoji'])
+            && request.resource.data.emoji is string;
+          allow delete: if signedIn() && userId == request.auth.uid;
+        }
       }
 
       match /videos/{videoId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null;
+        allow read: if signedIn();
+        allow create: if signedIn();
         // Video owner OR wedding creator (couple) can delete
-        allow delete: if request.auth != null && (
-          resource.data.uploaderId == request.auth.uid ||
-          get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid
-        );
+        allow delete: if signedIn() && (resource.data.uploaderId == request.auth.uid || isCreator(weddingId));
       }
 
       match /albums/{albumId} {
-        allow read: if request.auth != null;
+        allow read: if signedIn();
         // Only wedding creator can create/update/delete albums
-        allow create, update: if request.auth != null &&
-          get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid;
-        allow delete: if request.auth != null &&
-          get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid;
+        allow create, update, delete: if isCreator(weddingId);
       }
 
       match /guestbook/{entryId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null;
-        allow delete: if request.auth != null && (
-          resource.data.uploaderId == request.auth.uid ||
-          get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid
-        );
+        allow read: if signedIn();
+        allow create: if signedIn();
+        allow delete: if signedIn() && (resource.data.uploaderId == request.auth.uid || isCreator(weddingId));
       }
 
       match /rsvp/{entryId} {
-        allow read: if request.auth != null &&
-          get(/databases/$(database)/documents/weddings/$(weddingId)).data.createdBy == request.auth.uid;
-        allow create: if request.auth != null;
+        allow read: if isCreator(weddingId);
+        allow create: if signedIn();
       }
     }
   }

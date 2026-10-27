@@ -77,3 +77,16 @@ Guests can upload photos during the event, which appear instantly in a shared an
 | Auth | Firebase Auth (anonymous) | Firebase Auth (anonymous) |
 | Image loading | `AsyncImage` | Coil 2.5 |
 | Animations | SwiftUI spring transitions | Compose spring `AnimatedVisibility` |
+
+## Firestore rules, photo cap & retention
+
+`firestore.rules` enforces event privacy (events open by link/QR only — nobody can list other couples' weddings), the free-tier 50-photo cap (server-side counter on the wedding doc), and that `plan` can only be set by the payment backend. Free-tier photos carry an `expireAt` that a Firestore TTL policy (`firestore.indexes.json`) deletes after ~30 days.
+
+```bash
+# Test the rules against the local emulator (needs Java 11+)
+cd firestore-tests && npm install && npm test
+
+# Deploy rules + TTL policy to the Firebase project
+npx firebase-tools login
+npx firebase-tools deploy --only firestore
+```

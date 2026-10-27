@@ -27,7 +27,7 @@ interface Props {
 }
 
 export default function HomePage({ user, onOpen }: Props) {
-  const weddings = useWeddings()
+  const weddings = useWeddings(user.uid)
   const { dark, toggle } = useDarkMode()
   const [tab, setTab] = useState<Tab>('live')
   const [showCreate, setShowCreate] = useState(false)
